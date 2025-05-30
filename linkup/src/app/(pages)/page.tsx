@@ -3,8 +3,7 @@ import { useEffect } from 'react';
 import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
 import { collection, getDocs } from 'firebase/firestore';
 import User from '../_types/auth/User';
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import Navbar from './components/navbar'; 
 import Image from 'next/image';
 
 
@@ -38,24 +37,8 @@ export default function Home() {
   return (
     //the page background: full vertical height, white background, dark text
     <main className="min-h-screen bg-white text-gray-900">
-      {/* Header section */}
-      {/* space between logo and buttons with padding and bottom border */}
-      <header className="flex justify-between items-center p-6 border-b">
-        {/* the logo */}
-        <div className="flex items-center space-x-2">
-          <Image src="/logo.png" alt="LinkUp Logo" width={32} height={32} />
-          <span className="text-xl font-bold text-blue-950">LinkUp</span>
-        </div>
-        <div className="space-x-4">
-          {/* create the login and signup button*/}
-          <Link href="/login">
-            <Button variant="outline">Login</Button>
-          </Link>
-          <Link href="/signup">
-            <Button>Sign Up</Button>
-          </Link>
-        </div>
-      </header>
+      {/* the navbar section */}
+      <Navbar />
 
       {/* the intro Section */}
       {/* 1 column on mobile device, 2 column on the ewst, even space, padding all around*/}
