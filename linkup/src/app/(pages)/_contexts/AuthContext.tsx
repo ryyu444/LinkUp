@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, createContext } from 'react';
+import { useState, createContext } from 'react';
 import {
-  handleGoogleLogin,
-  handleEmailPasswordLogin,
+  handleGoogleSetup,
+  handleEmailPasswordSetup,
 } from '@/(api)/_lib/auth/authHandlers';
 import User from '@/app/_types/auth/User';
 
@@ -13,7 +13,42 @@ export const AuthContext = createContext({});
  *
  * @returns Auth Context Provider used to track current user info for handling login/logout and specific rendering
  */
-export function AuthContextProvider() {
-  const [user, setUser] = useState<User | null>(null);
-  return;
+export function AuthContextProvider({ children }: any) {
+  const [user, setUser] = useState<User | null>({
+    username: 'john',
+    password: 'smith',
+    accessToken: '0',
+  });
+
+  // signup - implement
+  /**
+   * 
+   * @param type Input "Google" or "EmailPassword" to select method type
+   * @param method Input "login" or "signup" to select method
+   * @param form Form Data with Name, Email, and Password
+   * @returns 
+   */
+  const login = async (type: String, method: String, form: FormData) => {
+    let user = null;
+    if (type === "Google") {
+      user = await handleGoogleSetup();
+    } else {
+      user = await handleEmailPasswordSetup(method, form);
+    }
+
+    setUser(user);
+    return;
+  };
+
+  // logout
+  const logout = async () => {
+    setUser(null);
+    return;
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
