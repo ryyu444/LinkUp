@@ -3,6 +3,7 @@ import { getFirebaseAuth } from '../firebase/firebaseClient';
 import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
+  signInWithPopup,
   createUserWithEmailAndPassword
 } from 'firebase/auth';
 
@@ -16,11 +17,24 @@ const auth = getFirebaseAuth();
 */
 export async function handleGoogleSetup(): Promise<User> {
   const provider = new GoogleAuthProvider();
-  return {
-    username: 'John',
-    password: 'Doe',
-    accessToken: '0',
-  };
+  
+   try {
+    // open a popup for Google sign-in
+    const result = await signInWithPopup(auth, provider);
+    // get user info from result
+    const firebaseUser = result.user;
+    // get Firebase JWT token
+    const token = await firebaseUser.getIdToken();
+    // return the app's User object
+    return {
+      username: firebaseUser.displayName || firebaseUser.email || 'Unknown User',
+      password: 'google-auth', // dummy value to satisfy your type
+      accessToken: token,
+    };
+  } catch (error: any) {
+    console.error('Google Sign-in Error:', error);
+    throw new Error('Google sign-in failed.');
+  }
 }
 
 /* 
@@ -33,21 +47,29 @@ export async function handleEmailPasswordSetup(
   type: String,
   form: FormData
 ): Promise<User | null> {
-  // break down form into email and password
-  let email = '';
-  let password = '';
+  // extract email and password from form
+  const email = form.get('email') as string;
+  const password = form.get('password') as string;
 
-  let user = null;
-
-  if (type === 'signup') {
-    user = await createUserWithEmailAndPassword(auth, email, password);
-  } else {
-    user = await signInWithEmailAndPassword(auth, email, password);
+  try {
+    let userCredential;
+    // handle the signuo
+    if (type === 'signup') {
+      userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    } else {
+      userCredential = await signInWithEmailAndPassword(auth, email, password);
+    }
+    // get Firebase user
+    const user = userCredential.user;
+    const token = await user.getIdToken();
+    // return the app's User object
+    return {
+      username: user.email || 'No email',
+      password: 'firebase-auth', // dummy value
+      accessToken: token,
+    };
+  } catch (err: any) {
+    console.error('Email/Password Auth Error:', err);
+    throw new Error('Authentication failed. Please check your credentials.');
   }
-
-  return {
-    username: 'John',
-    password: 'Doe',
-    accessToken: '0',
-  };
 }
