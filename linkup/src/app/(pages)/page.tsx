@@ -57,15 +57,15 @@ export default function Home() {
       <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center p-10">
         <div>
           {/* the text */}
-          <h1 className="text-4xl font-bold text-blue-950 mb-4">Find Your Perfect Study Buddy</h1>
+          <h1 className="text-5xl font-bold text-blue-950 mb-4">Find Your Perfect Study Buddy</h1>
           {/* left column, black collor */}
-          <p className="text-lg text-gray-900">
+          <p className="text-2xl text-gray-900">
             <strong>LinkUp connects university students for collaborative study sessions. Find partners who match your learning style, subject interests, and schedule. </strong>
           </p>
         </div>
         {/* the image from src and in the right column  */}
         <div className="flex justify-center">
-          <Image src="/library.png" alt="Library Scene" width={400} height={400} />
+          <Image src="/library.png" alt="Library Scene" width={500} height={500} />
         </div>
       </section>
 

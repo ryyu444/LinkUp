@@ -7,7 +7,13 @@ import {
 } from '@/(api)/_lib/auth/authHandlers';
 import User from '@/app/_types/auth/User';
 
-export const AuthContext = createContext({});
+interface AuthContextType {
+  user: User | null;
+  login: (type: 'Google' | 'EmailPassword', method: 'login' | 'signup', form: FormData) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 /**
  *
