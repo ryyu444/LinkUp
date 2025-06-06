@@ -23,54 +23,63 @@ function MainPage() {
 
 
 function Header() {
-  const router = useRouter();
-
-  function goToDashboard() {
-    router.push('/dashboard');
-  }
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="relative h-[318px] w-[100vw]">
-      
+    <div className="relative h-[324px] w-[100vw]">
       {/* Blue bar */}
       <div className="absolute top-[72px] w-[100vw] h-[154px] bg-[#002855]"></div> 
-      
+
       {/* Logo */}
       <div className="absolute w-[169px] h-[41px] top-[15px] left-[12px]">
         <img src="logo.svg" alt="logo" className="w-full h-full object-cover" />
       </div>
 
       {/* Back to Dashboard button */}
-      <div
-        className="absolute w-[250px] h-[54px] top-[122px] right-[222px] rounded-[10px]
-        border-2 border-[#F5F5F5] bg-white cursor-pointer hover:bg-gray-100 hover:shadow-md"
-        onClick={goToDashboard}
-        role="button"
-      >
-        <div className="absolute w-[230px] h-[32px] top-[10px] left-[10px]">
-          <img src="BacktoDashboard.svg" alt="back to dashboard" className="w-full h-full object-cover" />
+      <Link href="/dashboard">
+        <div
+          className="absolute w-[250px] h-[54px] top-[122px] right-[222px] rounded-[10px]
+          border-2 border-[#F5F5F5] bg-white cursor-pointer hover:bg-gray-100 hover:shadow-md"
+        >
+          <div className="absolute w-[230px] h-[32px] top-[10px] left-[10px]">
+            <img src="BacktoDashboard.svg" alt="back to dashboard" className="w-full h-full object-cover" />
+          </div>
         </div>
-      </div>
+      </Link>
 
-      {/* Edit Profile button */}
-      <div className="absolute w-[170px] h-[54px] top-[122px] right-[28px] rounded-[10px] border-2 border-white">
+      {/* Edit Profile button opens modal */}
+      <div
+        onClick={() => setIsModalOpen(true)}
+        className="absolute w-[170px] h-[54px] top-[122px] right-[28px] rounded-[10px]
+        border-2 border-white cursor-pointer hover:bg-[#0a3463] hover:shadow-md"
+      >
         <div className="absolute w-[149px] h-[32px] top-[10px] left-[10px]">
           <img src="EditProfile.svg" alt="edit profile" className="w-full h-full object-cover" />
         </div>
       </div>
 
-      {/* user's photo */}
+      {/* User's photo */}
       <div className="absolute top-[146px] left-[61px] w-[172px] h-[172px] rounded-full border-[5px] border-white overflow-hidden">
         <img
-          src="https://teachmeanatomy.info/wp-content/uploads/Head-Cover-Photo.png"
+          src="https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
           alt="head"
           className="w-full h-full object-cover"
         />
       </div>
 
+      {/* Fullscreen Modal with ProfileForm */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white w-full h-full relative p-8 overflow-auto">
+            {/* Profile Edit Form */}
+            <ProfileForm onClose={() => setIsModalOpen(false)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 
 function NameSection() {
@@ -81,18 +90,18 @@ function NameSection() {
   }
 
   return (
-    <div className="relative mb-10 left-[61px]">
+    <div className="relative mb-10 left-[60px]">
 
       {/* User's name */}
       <p className="relative font-inter font-semibold text-[50px] leading-[35px] mb-3 align-middle tracking-[0px]">
-        User's Name
+        User Name
       </p>
       {/* User's major */}
-      <p className="relative font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
+      <p className="relative left-[2px] font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
         User's Major
       </p>
       {/* User's year */}
-      <p className="relative font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
+      <p className="relative left-[2px] font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
         nth Year
       </p>
 
@@ -121,7 +130,7 @@ function NameSection() {
 
 function AboutMe() {
   return (
-    <div className="relative mb-8 left-[61px]">
+    <div className="relative mb-8 left-[62px]">
 
       {/* About Me Title */}
       <div className="relative font-inter font-semibold text-[25px] align-middle ">
@@ -141,7 +150,7 @@ function AboutMe() {
 
 function StudyInterest() {
   return (
-    <div className="flex ml-[61px] mb-24 ">
+    <div className="flex ml-[62px] mb-24 ">
 
       {/* Study Interest */}
       <div className="w-[45vw]">
@@ -197,10 +206,7 @@ function StudyInterest() {
 
 
 export default function Profile() {
-  const router = useRouter();
-  function handleClick() {
-    router.push('/dashboard');  // navigates to /other-page
-  }
+  
   return (
     <div>
       <MainPage />
