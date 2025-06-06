@@ -1,6 +1,7 @@
 'use client';
 import ProfileForm from './profileForm/profileForm';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Link from 'next/link';
 
 /*
@@ -41,10 +42,10 @@ function Header() {
 
       {/* Back to Dashboard button */}
       <div
-        className="absolute w-[250px] h-[54px] top-[122px] right-[222px] rounded-[10px] border-2 border-[#F5F5F5] bg-white cursor-pointer"
+        className="absolute w-[250px] h-[54px] top-[122px] right-[222px] rounded-[10px]
+        border-2 border-[#F5F5F5] bg-white cursor-pointer hover:bg-gray-100 hover:shadow-md"
         onClick={goToDashboard}
         role="button"
-        tabIndex={0}
       >
         <div className="absolute w-[230px] h-[32px] top-[10px] left-[10px]">
           <img src="BacktoDashboard.svg" alt="back to dashboard" className="w-full h-full object-cover" />
@@ -73,6 +74,12 @@ function Header() {
 
 
 function NameSection() {
+  const [verified, setVerified] = useState(false);
+
+  function toggleVerified() {
+    setVerified(!verified);
+  }
+
   return (
     <div className="relative mb-10 left-[61px]">
 
@@ -88,11 +95,23 @@ function NameSection() {
       <p className="relative font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
         nth Year
       </p>
+
       {/* Student verification */}
-      <div className="absolute right-[121px] top-1/2 -translate-y-1/2 w-[132px] h-[54px] rounded-[10px] bg-[#F5F5F5]">
-        <div className="absolute w-[113px] h-[32px] top-[10px] left-[8px]">
-          <img src="StudentVerify.svg"
-           alt="Student" className="w-full h-full object-cover" />
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={toggleVerified}
+        className={`absolute right-[121px] top-1/2 -translate-y-1/2 w-[132px] h-[54px] rounded-[10px] cursor-pointer
+          ${verified ? 'bg-[#79fbd1]' : 'bg-[#F5F5F5]'}
+          flex items-center justify-center
+        `}
+      >
+        <div className="w-[113px] h-[32px]">
+          <img
+            src="StudentVerify.svg"
+            alt="Student"
+            className="w-full h-full object-cover"
+          />
         </div>
       </div>
 
@@ -124,12 +143,13 @@ function StudyInterest() {
   return (
     <div className="flex ml-[61px] mb-24 ">
 
-
+      {/* Study Interest */}
       <div className="w-[45vw]">
         <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-1">
           Study Interests
         </p>
 
+        {/* Interest bubbles */}
         <div className="flex flex-wrap gap-4">
 
           <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
@@ -150,16 +170,14 @@ function StudyInterest() {
             </div>
           </div>
 
-
         </div>
-        
-
-        
 
       </div>
 
+      {/* Blank Block */}
       <div className="w-[15vw]"></div>
 
+      {/* Study Preference */}
       <div className="w-[30vw]">
         <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-2">
           Study Preferences
