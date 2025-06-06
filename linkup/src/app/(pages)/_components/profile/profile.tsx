@@ -10,6 +10,8 @@ function MainPage() {
     <div>
       <Header />
       <NameSection />
+      <AboutMe />
+      <StudyInterest />
 
     </div>
   );
@@ -18,30 +20,31 @@ function MainPage() {
 function Header() {
   return (
     <div className="relative h-[318px] w-[100vw]">
+      
+      {/* Blue bar */}
       <div className="absolute top-[72px] w-[100vw] h-[154px] bg-[#002855]"></div> 
-
+      {/* Logo */}
       <div className="absolute w-[169px] h-[41px] top-[15px] left-[12px]">
         <img src="logo.svg"
         alt="logo" className="w-full h-full object-cover" />
       </div>
-
+      {/* Back to Dashboard button */}
       <div className="absolute w-[250px] h-[54px] top-[122px] right-[222px] rounded-[10px] border-2 border-[#F5F5F5] bg-white">
         <div className="absolute w-[230px] h-[32px] top-[10px] left-[10px]">
           <img src="BacktoDashboard.svg" alt="editprofile" className="w-full h-full object-cover" />
         </div>
       </div>
-
+      {/* Edit Profile button */}
       <div className="absolute w-[170px] h-[54px] top-[122px] right-[28px] rounded-[10px] border-2 border-white">
         <div className="absolute w-[149px] h-[32px] top-[10px] left-[10px]">
           <img src="EditProfile.svg" alt="editprofile" className="w-full h-full object-cover" />
         </div>
       </div>
-
+      {/* user's photo */}
       <div className="absolute top-[146px] left-[61px] w-[172px] h-[172px] rounded-full border-[5px] border-white overflow-hidden">
         <img src="https://teachmeanatomy.info/wp-content/uploads/Head-Cover-Photo.png"
         alt="head" className="w-full h-full object-cover" />
       </div>
-
 
     </div>
   );
@@ -49,14 +52,108 @@ function Header() {
 
 function NameSection() {
   return (
-    <div>
+    <div className="relative mb-10 left-[61px]">
+
+      {/* User's name */}
+      <p className="relative font-inter font-semibold text-[50px] leading-[35px] mb-3 align-middle tracking-[0px]">
+        User's Name
+      </p>
+      {/* User's major */}
+      <p className="relative font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
+        User's Major
+      </p>
+      {/* User's year */}
+      <p className="relative font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
+        nth Year
+      </p>
+      {/* Student verification */}
+      <div className="absolute right-[121px] top-1/2 -translate-y-1/2 w-[132px] h-[54px] rounded-[10px] bg-[#F5F5F5]">
+        <div className="absolute w-[113px] h-[32px] top-[10px] left-[8px]">
+          <img src="StudentVerify.svg"
+           alt="Student" className="w-full h-full object-cover" />
+        </div>
+      </div>
 
     </div>
   );
 }
 
+function AboutMe() {
+  return (
+    <div className="relative mb-8 left-[61px]">
+
+      {/* About Me Title */}
+      <div className="relative font-inter font-semibold text-[25px] align-middle ">
+        About Me
+      </div>
+      {/* Introduction */}
+      <div className="relative w-[90vw] font-inter font-normal text-[20px] align-middle">
+        I'm a Computer Science major passionate about Web Dev and AI. 
+        I enjoy collaborative studying and helping others understand complex concepts. 
+        Looking for study partners for algorithm analysis and database design courses. 
+        I'm also open to parallel play studying to keep each other accountable!
+      </div>
+
+    </div>
+  );
+}
+
+function StudyInterest() {
+  return (
+    <div className="flex ml-[61px] mb-24 ">
 
 
+      <div className="w-[45vw]">
+        <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-1">
+          Study Interests
+        </p>
+
+        <div className="flex flex-wrap gap-4">
+
+          <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
+            <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
+              Algorithms
+            </div>
+          </div>
+
+          <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
+            <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
+              Web Developing and 32432432424
+            </div>
+          </div>
+
+          <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
+            <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
+              Large Language Model
+            </div>
+          </div>
+
+
+        </div>
+        
+
+        
+
+      </div>
+
+      <div className="w-[15vw]"></div>
+
+      <div className="w-[30vw]">
+        <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-2">
+          Study Preferences
+        </p>
+        <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle mb-5">
+          Collaborative Style
+        </p>
+        <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle mb-5">
+          Group Preference
+        </p>
+        
+
+      </div>
+    </div>
+  );
+}
 
 
 export default function Profile() {
