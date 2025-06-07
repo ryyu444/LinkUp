@@ -176,7 +176,7 @@ function Rightside({ onClose }: ProfileFormProps) {
                 text-[#000] px-4 align-middle outline-none w-full"
             >
               <option value="" disabled>
-                Select Your Year
+                Select Year
               </option>
               {years.map((year, index) => (
                 <option key={index} value={year}>
