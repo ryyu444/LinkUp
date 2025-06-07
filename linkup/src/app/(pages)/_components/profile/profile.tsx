@@ -11,7 +11,7 @@ import Link from 'next/link';
 
 function MainPage() {
   return (
-    <div>
+    <div className="">
       <Header />
       <NameSection />
       <AboutMe />
