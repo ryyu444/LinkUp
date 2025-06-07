@@ -4,31 +4,24 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 
-/*
-  Entire profile for Create/Edit Profile in Figma (with image, upload, & buttons) 
-  className="min-h-screen flex items-center justify-center bg-gray-100"
-*/
-
 function MainPage() {
   return (
-    <div className="">
+    <div>
       <Header />
       <NameSection />
       <AboutMe />
       <StudyInterest />
-
     </div>
   );
 }
-
 
 function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="relative h-[324px] w-[100vw]">
+    <div className="relative h-[324px] w-full max-w-[1700px] mx-auto">
       {/* Blue bar */}
-      <div className="absolute top-[72px] w-[100vw] h-[154px] bg-[#002855]"></div> 
+      <div className="absolute top-[72px] w-full h-[154px] bg-[#002855]"></div> 
 
       {/* Logo */}
       <div className="absolute w-[169px] h-[41px] top-[15px] left-[12px]">
@@ -69,9 +62,11 @@ function Header() {
 
       {/* Fullscreen Modal with ProfileForm */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white w-full h-full relative p-8 overflow-auto">
-            {/* Profile Edit Form */}
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50
+               bg-white bg-opacity-30 backdrop-filter backdrop-blur-sm"
+        >
+          <div className="bg-white w-full max-w-[1440px] relative overflow-auto rounded-lg">
             <ProfileForm onClose={() => setIsModalOpen(false)} />
           </div>
         </div>
@@ -79,8 +74,6 @@ function Header() {
     </div>
   );
 }
-
-
 
 function NameSection() {
   const [verified, setVerified] = useState(false);
@@ -90,18 +83,17 @@ function NameSection() {
   }
 
   return (
-    <div className="relative mb-10 left-[60px]">
-
+    <div className="relative mb-10 ml-16 max-w-[1440px] mx-auto">
       {/* User's name */}
       <p className="relative font-inter font-semibold text-[50px] leading-[35px] mb-3 align-middle tracking-[0px]">
         User Name
       </p>
       {/* User's major */}
-      <p className="relative left-[2px] font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
+      <p className="relative ml-1 font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
         User's Major
       </p>
       {/* User's year */}
-      <p className="relative left-[2px] font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
+      <p className="relative ml-1 font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
         nth Year
       </p>
 
@@ -123,44 +115,39 @@ function NameSection() {
           />
         </div>
       </div>
-
     </div>
   );
 }
 
 function AboutMe() {
   return (
-    <div className="relative mb-8 left-[62px]">
-
+    <div className="relative mb-8 ml-16 max-w-[800px] mx-auto">
       {/* About Me Title */}
       <div className="relative font-inter font-semibold text-[25px] align-middle ">
         About Me
       </div>
       {/* Introduction */}
-      <div className="relative w-[90vw] font-inter font-normal text-[20px] align-middle">
+      <div className="relative font-inter font-normal text-[20px] align-middle">
         I'm a Computer Science major passionate about Web Dev and AI. 
         I enjoy collaborative studying and helping others understand complex concepts. 
         Looking for study partners for algorithm analysis and database design courses. 
         I'm also open to parallel play studying to keep each other accountable!
       </div>
-
     </div>
   );
 }
 
 function StudyInterest() {
   return (
-    <div className="flex ml-[62px] mb-24 ">
-
+    <div className="flex ml-16 mb-24 max-w-[1200px] mx-auto">
       {/* Study Interest */}
-      <div className="w-[45vw]">
+      <div className="w-[45%] min-w-[300px]">
         <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-1">
           Study Interests
         </p>
 
         {/* Interest bubbles */}
         <div className="flex flex-wrap gap-4">
-
           <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
             <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
               Algorithms
@@ -178,16 +165,14 @@ function StudyInterest() {
               Large Language Model
             </div>
           </div>
-
         </div>
-
       </div>
 
       {/* Blank Block */}
-      <div className="w-[15vw]"></div>
+      <div className="w-[15%] min-w-[150px]"></div>
 
       {/* Study Preference */}
-      <div className="w-[30vw]">
+      <div className="w-[30%] min-w-[250px]">
         <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-2">
           Study Preferences
         </p>
@@ -197,18 +182,14 @@ function StudyInterest() {
         <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle mb-5">
           Group Preference
         </p>
-        
-
       </div>
     </div>
   );
 }
 
-
 export default function Profile() {
-  
   return (
-    <div>
+    <div className="relative w-full max-w-[1700px] mx-auto p-4">
       <MainPage />
     </div>
   );
