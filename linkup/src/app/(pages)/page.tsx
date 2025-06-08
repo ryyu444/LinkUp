@@ -5,7 +5,6 @@ import { collection, getDocs } from 'firebase/firestore';
 import { AuthContext } from './_contexts/AuthContext';
 import Example from './_components/example/example';
 import User from '../_types/auth/User';
-import Navbar from './_components/navbar/navbar'; 
 import Image from 'next/image';
 
 async function testDB() {
@@ -48,13 +47,10 @@ export default function Home() {
   // the about page
   return (
     //the page background: full vertical height, white background, dark text
-    <main className="min-h-screen bg-white text-gray-900">
-      {/* the navbar section */}
-      {/* <Navbar /> */}
-
+    <main className="h-[calc(100vh-64px)] bg-white text-gray-900">
       {/* the intro Section */}
       {/* 1 column on mobile device, 2 column on the ewst, even space, padding all around*/}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center p-10">
+      <section className="h-2/3 grid grid-cols-1 md:grid-cols-2 gap-10 items-center p-10">
         <div>
           {/* the text */}
           <h1 className="text-5xl font-bold text-blue-950 mb-4">Find Your Perfect Study Buddy</h1>
@@ -71,7 +67,7 @@ export default function Home() {
 
       {/* Features Section */}
       {/* the background setting */}
-      <section className="bg-blue-50 py-12 px-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+      <section className="h-1/3 bg-blue-50 py-12 px-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
         <div className="bg-white shadow-md rounded p-6">
           {/* the create study sessions */}
           <div className="mb-4">
