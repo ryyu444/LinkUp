@@ -294,7 +294,6 @@ export default function ProfileForm({ onClose }: ProfileFormProps) {
   return (
     <div className="relative w-full h-full top-0 left-0 bg-white flex flex-col items-center">
       <div className="relative w-full max-w-[1440px] h-full px-4">
-        <Logo />
         <Header />
         <MainPage onClose={onClose} />
       </div>

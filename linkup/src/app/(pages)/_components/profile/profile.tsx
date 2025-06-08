@@ -16,22 +16,22 @@ function MainPage() {
 }
 
 function Header() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
 
   return (
-    <div className="relative h-[324px] w-full max-w-[1700px] mx-auto">
+    <div className="relative h-[252px] w-full max-w-[9999px] mx-auto">
       {/* Blue bar */}
-      <div className="absolute top-[72px] w-full h-[154px] bg-[#002855]"></div> 
+      <div className="absolute top-[0px] w-full h-[154px] bg-[#002855]"></div> 
 
-      {/* Logo */}
+      {/* Logo 
       <div className="absolute w-[169px] h-[41px] top-[15px] left-[12px]">
         <img src="logo.svg" alt="logo" className="w-full h-full object-cover" />
-      </div>
+      </div>*/}
 
       {/* Back to Dashboard button */}
       <Link href="/dashboard">
         <div
-          className="absolute w-[250px] h-[54px] top-[122px] right-[222px] rounded-[10px]
+          className="absolute w-[250px] h-[54px] top-[50px] right-[222px] rounded-[10px]
           border-2 border-[#F5F5F5] bg-white cursor-pointer hover:bg-gray-100 hover:shadow-md"
         >
           <div className="absolute w-[230px] h-[32px] top-[10px] left-[10px]">
@@ -43,7 +43,7 @@ function Header() {
       {/* Edit Profile button opens modal */}
       <div
         onClick={() => setIsModalOpen(true)}
-        className="absolute w-[170px] h-[54px] top-[122px] right-[28px] rounded-[10px]
+        className="absolute w-[170px] h-[54px] top-[50px] right-[28px] rounded-[10px]
         border-2 border-white cursor-pointer hover:bg-[#0a3463] hover:shadow-md"
       >
         <div className="absolute w-[149px] h-[32px] top-[10px] left-[10px]">
@@ -52,7 +52,7 @@ function Header() {
       </div>
 
       {/* User's photo */}
-      <div className="absolute top-[146px] left-[61px] w-[172px] h-[172px] rounded-full border-[5px] border-white overflow-hidden">
+      <div className="absolute top-[74px] left-[61px] w-[172px] h-[172px] rounded-full border-[5px] border-white overflow-hidden">
         <img
           src="https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
           alt="head"
@@ -60,13 +60,13 @@ function Header() {
         />
       </div>
 
-      {/* Fullscreen Modal with ProfileForm */}
+      {/* Fullscreen Modal with ProfileForm "items-center justify-center to put in center" rounded-lg */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 flex items-center justify-center z-50
-              backdrop-filter backdrop-blur-md"
+          className="fixed inset-0 flex z-50
+              backdrop-filter backdrop-blur-md justify-center"
         >
-          <div className="bg-white w-full max-w-[1440px] relative overflow-auto rounded-lg">
+          <div className="bg-white w-full max-w-[1440px] relative overflow-auto">
             <ProfileForm onClose={() => setIsModalOpen(false)} />
           </div>
         </div>
@@ -83,7 +83,7 @@ function NameSection() {
   }
 
   return (
-    <div className="relative mb-10 ml-16 max-w-[1700px] mx-auto">
+    <div className="relative mb-14 ml-16 max-w-[9999px] mx-auto">
       {/* User's name */}
       <p className="relative font-inter font-semibold text-[50px] leading-[35px] mb-3 align-middle tracking-[0px]">
         User Name
@@ -121,7 +121,7 @@ function NameSection() {
 
 function AboutMe() {
   return (
-    <div className="relative mb-8 ml-16 max-w-[1700px] mx-auto">
+    <div className="relative mb-10 ml-16 max-w-[9999px] mx-auto">
       {/* About Me Title */}
       <div className="relative font-inter font-semibold text-[25px] align-middle ">
         About Me
@@ -193,7 +193,7 @@ function StudyInterest() {
 export default function Profile() {
   return (
     <div className="h-[96vh] w-full bg-gray-100 bg-opacity-30 backdrop-filter backdrop-blur-sm flex justify-center">
-      <div className="relative w-full bg-white max-w-[1700px] mx-auto p-4">
+      <div className="relative w-full bg-white max-w-[9999px] mx-auto p-4">
         <MainPage />
       </div>
     </div>
