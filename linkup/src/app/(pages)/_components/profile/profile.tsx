@@ -64,7 +64,7 @@ function Header() {
       {isModalOpen && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50
-               bg-white bg-opacity-30 backdrop-filter backdrop-blur-sm"
+              backdrop-filter backdrop-blur-md"
         >
           <div className="bg-white w-full max-w-[1440px] relative overflow-auto rounded-lg">
             <ProfileForm onClose={() => setIsModalOpen(false)} />
@@ -83,7 +83,7 @@ function NameSection() {
   }
 
   return (
-    <div className="relative mb-10 ml-16 max-w-[1440px] mx-auto">
+    <div className="relative mb-10 ml-16 max-w-[1700px] mx-auto">
       {/* User's name */}
       <p className="relative font-inter font-semibold text-[50px] leading-[35px] mb-3 align-middle tracking-[0px]">
         User Name
@@ -102,7 +102,7 @@ function NameSection() {
         role="button"
         tabIndex={0}
         onClick={toggleVerified}
-        className={`absolute right-[121px] top-1/2 -translate-y-1/2 w-[132px] h-[54px] rounded-[10px] cursor-pointer
+        className={`absolute right-[3%] top-1/2 -translate-y-1/2 w-[132px] h-[54px] rounded-[10px] cursor-pointer
           ${verified ? 'bg-[#79fbd1]' : 'bg-[#F5F5F5]'}
           flex items-center justify-center
         `}
@@ -121,13 +121,13 @@ function NameSection() {
 
 function AboutMe() {
   return (
-    <div className="relative mb-8 ml-16 max-w-[800px] mx-auto">
+    <div className="relative mb-8 ml-16 max-w-[1700px] mx-auto">
       {/* About Me Title */}
       <div className="relative font-inter font-semibold text-[25px] align-middle ">
         About Me
       </div>
       {/* Introduction */}
-      <div className="relative font-inter font-normal text-[20px] align-middle">
+      <div className="relative w-[90%] font-inter font-normal text-[20px] align-middle">
         I'm a Computer Science major passionate about Web Dev and AI. 
         I enjoy collaborative studying and helping others understand complex concepts. 
         Looking for study partners for algorithm analysis and database design courses. 
@@ -141,7 +141,7 @@ function StudyInterest() {
   return (
     <div className="flex ml-16 mb-24 max-w-[1200px] mx-auto">
       {/* Study Interest */}
-      <div className="w-[45%] min-w-[300px]">
+      <div className="w-[45%]">
         <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-1">
           Study Interests
         </p>
@@ -169,10 +169,10 @@ function StudyInterest() {
       </div>
 
       {/* Blank Block */}
-      <div className="w-[15%] min-w-[150px]"></div>
+      <div className="w-[15%]"></div>
 
       {/* Study Preference */}
-      <div className="w-[30%] min-w-[250px]">
+      <div className="w-[30%]">
         <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-2">
           Study Preferences
         </p>
@@ -189,8 +189,11 @@ function StudyInterest() {
 
 export default function Profile() {
   return (
-    <div className="relative w-full max-w-[1700px] mx-auto p-4">
-      <MainPage />
+    <div className="h-[96vh] w-full bg-gray-100 bg-opacity-30 backdrop-filter backdrop-blur-sm flex justify-center">
+      <div className="relative w-full bg-white max-w-[1700px] mx-auto p-4">
+        <MainPage />
+      </div>
     </div>
+    
   );
 }
