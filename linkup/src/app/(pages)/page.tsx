@@ -5,7 +5,6 @@ import { collection, getDocs } from 'firebase/firestore';
 import { AuthContext } from './_contexts/AuthContext';
 import Example from './_components/example/example';
 import User from '../_types/auth/User';
-import Navbar from './_components/navbar/navbar'; 
 import Image from 'next/image';
 
 async function testDB() {
@@ -48,10 +47,7 @@ export default function Home() {
   // the about page
   return (
     //the page background: full vertical height, white background, dark text
-    <main className="min-h-screen bg-white text-gray-900">
-      {/* the navbar section */}
-      {/* <Navbar /> */}
-
+    <main className="bg-white text-gray-900">
       {/* the intro Section */}
       {/* 1 column on mobile device, 2 column on the ewst, even space, padding all around*/}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center p-10">
