@@ -287,6 +287,9 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
   );
 }
 
+// Too much is being split into components, but work with what you have.
+// Can remove the header + logo since we have navbar
+// make sure that the save function actually saves the profile data
 export default function ProfileForm({ onClose }: ProfileFormProps) {
   return (
     <div className="relative w-full h-full top-0 left-0 bg-white flex flex-col items-center">

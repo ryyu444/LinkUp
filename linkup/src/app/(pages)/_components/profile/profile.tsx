@@ -187,6 +187,9 @@ function StudyInterest() {
   );
 }
 
+// make sure that the profile info comes from the user's profile in the database
+// make sure the styling is consistent with the Figma design
+// once again this is broken up into too many components, but work with what you have.
 export default function Profile() {
   return (
     <div className="h-[96vh] w-full bg-gray-100 bg-opacity-30 backdrop-filter backdrop-blur-sm flex justify-center">
