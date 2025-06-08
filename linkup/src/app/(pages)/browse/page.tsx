@@ -9,6 +9,10 @@ import SessionCard from "../_components/session/sessionCard/sessionCard";
     4. Create filter inputs
     5. Create available session displays that updates when filters are applied
 */
+
+// add state for filters
+// ignore pagination since its not that easy.
+
 export default function Browse() {
   const dummySessions = [
     {

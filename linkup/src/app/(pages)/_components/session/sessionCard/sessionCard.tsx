@@ -1,6 +1,13 @@
 // Card for Sessions in Browse
 "use client";
 
+import SessionPopup from "../sessionPopup/sessionPopup";
+
+
+/*
+  Make sure the View button opens up a SessionPopup component with the session details
+  Restyle the cards to match design in figma more closely
+*/
 export default function SessionCard({
   title,
   location,
