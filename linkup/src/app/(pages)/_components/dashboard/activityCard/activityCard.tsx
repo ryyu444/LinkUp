@@ -14,6 +14,13 @@ const iconMap = {
   create: <PlusCircle className="w-4 h-4 text-gray-600" />,
 };
 
+/*
+  Ideas for activity items:
+  1. Maybe we track activity in a new collection called "Activity" in the database.
+  2. Each activity could have a type (join, comment, create) and a reference to the user and session.
+  3. We can also include timestamps and any relevant metadata.
+  4. Sort and use the most recent activities to display here.
+*/
 const activityData: ActivityItem[] = [
   {
     icon: "join",
