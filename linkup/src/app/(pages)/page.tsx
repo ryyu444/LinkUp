@@ -4,6 +4,7 @@ import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
 import { collection, getDocs } from 'firebase/firestore';
 import { AuthContext } from './_contexts/AuthContext';
 import Example from './_components/example/example';
+import Profile from './_components/profile/profile';
 import User from '../_types/auth/User';
 
 async function testDB() {
@@ -45,8 +46,8 @@ export default function Home() {
 
   return (
     <div>
-      Hello world!
-      <Example title={title} />
+      < Profile />
     </div>
+    
   );
 }
