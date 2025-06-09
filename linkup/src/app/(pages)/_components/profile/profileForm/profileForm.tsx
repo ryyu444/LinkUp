@@ -1,4 +1,7 @@
 import { useRef, useState } from "react";
+import { getFirebaseAuth, getFirebaseDB } from "@/(api)/_lib/firebase/firebaseClient";
+import { doc, setDoc } from "firebase/firestore";
+import { useEffect,} from "react";
 
 interface ProfileFormProps {
   onClose: () => void;
@@ -93,17 +96,18 @@ function Leftside({ className }: { className?: string }) {
 }
 
 function Rightside({ onClose, className }: ProfileFormProps & { className?: string }) {
+  const [name, setName] = useState("");
+  const [major, setMajor] = useState("");
+  const [bio, setBio] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
-  const years = ["1st year", "2nd year", "3rd year", "4th year"];
-
   const [selected, setSelected] = useState<string>("");
-  const options = ["Quiet", "Some Noise", "Collaborative"];
-
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const groupSizes = ["1 on 1", "Small (2-4)", "Large (5+)"];
-
   const [inputValue, setInputValue] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
+
+  const years = ["1st year", "2nd year", "3rd year", "4th year"];
+  const options = ["Quiet", "Some Noise", "Collaborative"];
+  const groupSizes = ["1 on 1", "Small (2-4)", "Large (5+)"];
 
   const handleAddClick = () => {
     if (inputValue.trim()) {
@@ -116,6 +120,38 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
     setSubjects(subjects.filter((_, i) => i !== index));
   };
 
+  const handleSaveProfile = async () => {
+    const auth = getFirebaseAuth();
+    const db = getFirebaseDB();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      alert("No authenticated user found.");
+      return;
+    }
+
+    const profileData = {
+      name,
+      major,
+      year: selectedYear,
+      biography: bio,
+      studyPreference: selected,
+      groupSize: selectedSize,
+      subjects,
+      email: currentUser.email,
+    };
+
+    try {
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await setDoc(userDocRef, profileData, { merge: true });
+      alert("Profile saved successfully!");
+      onClose();
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      alert("Failed to save profile.");
+    }
+  };
+
   return (
     <div className={`${className} h-full`}>
       <div className="relative w-full max-w-[770px]">
@@ -125,6 +161,8 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
         <input
           type="text"
           placeholder="Enter Your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[24px] leading-[50px] outline-none mb-3 w-full"
         />
       </div>
@@ -137,6 +175,8 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
           <input
             type="text"
             placeholder="Enter Your Major"
+            value={major}
+            onChange={(e) => setMajor(e.target.value)}
             className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[24px] leading-[50px] outline-none mb-3 w-full"
           />
         </div>
@@ -168,6 +208,8 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
         </p>
         <textarea
           placeholder="Enter Your Biography Here"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
           className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[20px] leading-[25px] outline-none w-full min-h-[120px] resize-none mb-[60px]"
         />
       </div>
@@ -251,6 +293,7 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
+                e.preventDefault();
                 handleAddClick();
               }
             }}
@@ -274,15 +317,14 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
           Skip for Now
         </button>
         <button
-          onClick={onClose}
+          onClick={handleSaveProfile}
           className="bg-[#002855] border border-[#002855] rounded-[5px] text-white px-6 py-3 hover:bg-[#004080] font-inter font-semibold text-[20px] leading-[20px]"
         >
           Save Profile
         </button>
       </div>
-      <div className="h-[18px]">
 
-      </div>
+      <div className="h-[18px]" />
     </div>
   );
 }
