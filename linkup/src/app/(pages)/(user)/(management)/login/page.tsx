@@ -2,9 +2,9 @@
 
 import { AuthContext } from '@/app/(pages)/_contexts/AuthContext';
 import { useState, useContext } from 'react';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { redirect, useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 /*
     Corresponds to Login page in Figma
@@ -39,7 +39,7 @@ export default function Login() {
       // trigger login method
       await login('EmailPassword', 'login', formData);
       // move to dashboard when login success
-      redirect('/dashboard');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Login Failed.');
     }
@@ -50,7 +50,7 @@ export default function Login() {
     try {
       // google login trigger
       await login('Google', 'login', new FormData());
-      redirect('/dashboard');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Google Login Failed.');
     }

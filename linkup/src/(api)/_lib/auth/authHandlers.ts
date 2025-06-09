@@ -2,6 +2,7 @@ import User from '@/app/_types/auth/User';
 import { getFirebaseAuth, getFirebaseDB } from '../firebase/firebaseClient';
 import {
   GoogleAuthProvider,
+  browserSessionPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
   createUserWithEmailAndPassword,
@@ -16,39 +17,35 @@ const db = getFirebaseDB();
     2. Have the button use this function to handle the logic
     3. Write out logic of this function: Return the User
 */
-export async function handleGoogleSetup(): Promise<User> {
+export async function handleGoogleSetup(): Promise<void> {
   const provider = new GoogleAuthProvider();
 
   try {
     // open a popup for Google sign-in
-    const result = await signInWithPopup(auth, provider);
-    console.log(`Google Signin Result: ${result}`);
-    // get user info from result
-    const firebaseUser = result.user;
-    console.log(`User: ${firebaseUser.toJSON()}`);
+    auth.setPersistence(browserSessionPersistence).then(async () => {
+      const result = await signInWithPopup(auth, provider);
+      console.log(`Google Signin Result: ${result}`);
+      // get user info from result
+      const firebaseUser = result.user;
+      console.log(`User: ${firebaseUser.toJSON()}`);
 
-    // get a reference to the document
-    const userRef = doc(db, 'users', firebaseUser.uid);
-    // get the data from the document
-    const snapshot = await getDoc(userRef);
-    let userEntry: User;
+      // get a reference to the document
+      const userRef = doc(db, 'users', firebaseUser.uid);
+      // get the data from the document
+      const snapshot = await getDoc(userRef);
 
-    // if new Google user, add to Firestore
-    if (!snapshot.exists()) {
-      userEntry = {
-        uuid: firebaseUser.uid,
-        email: firebaseUser.email,
-        displayName: firebaseUser.displayName || 'Unnamed',
-        createdAt: new Date(),
-        provider: 'google',
-      };
-      await setDoc(userRef, userEntry);
-    } else {
-      userEntry = snapshot.data() as User;
-    }
-
-    // return the app's User object
-    return userEntry;
+      // if new Google user, add to Firestore
+      if (!snapshot.exists()) {
+        const userEntry: User = {
+          uuid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName || 'Unnamed',
+          createdAt: new Date(),
+          provider: 'google',
+        };
+        await setDoc(userRef, userEntry);
+      }
+    });
   } catch (error: any) {
     console.error('Google Sign-in Error:', error);
     throw new Error('Google sign-in failed.');
@@ -64,53 +61,51 @@ export async function handleGoogleSetup(): Promise<User> {
 export async function handleEmailPasswordSetup(
   type: String,
   form: FormData
-): Promise<User | null> {
+): Promise<void> {
   // extract email and password from form
   const email = form.get('email') as string;
   const password = form.get('password') as string;
 
   try {
-    let userCredential;
-    // handle the signuo
-    if (type === 'signup') {
-      userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-    } else if (type == 'login') {
-      userCredential = await signInWithEmailAndPassword(auth, email, password);
-    } else {
-      throw new Error('Invalid authentication type.');
-    }
+    auth.setPersistence(browserSessionPersistence).then(async () => {
+      let userCredential;
+      // handle the signup
+      if (type === 'signup') {
+        userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+      } else if (type == 'login') {
+        userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+      } else {
+        throw new Error('Invalid authentication type.');
+      }
 
-    // get Firebase user
-    const user = userCredential.user;
+      // get Firebase user
+      const user = userCredential.user;
 
-    console.log(`Email & Password User: ${user.toJSON()}`);
-    // get a reference to the document and get data from the document
-    const userRef = doc(db, 'users', user.uid);
-    const snapshot = await getDoc(userRef);
-    let userEntry: User;
+      console.log(`Email & Password User: ${user.toJSON()}`);
+      // get a reference to the document and get data from the document
+      const userRef = doc(db, 'users', user.uid);
+      const snapshot = await getDoc(userRef);
 
-    // Double-check if profile exists in Firestore
-    if (!snapshot.exists()) {
-      userEntry = {
-        uuid: user.uid,
-        email: user.email,
-        displayName: email.split('@')[0], // use email prefix as display name
-        createdAt: new Date(),
-        provider: 'email',
-      };
-      await setDoc(userRef, userEntry);
-    } else {
-      userEntry = snapshot.data() as User;
-    }
-
-    console.log(`User Entry: ${userEntry}`);
-    // const token = await user.getIdToken();
-    // return the app's User object
-    return userEntry;
+      // Double-check if profile exists in Firestore
+      if (!snapshot.exists()) {
+        const userEntry: User = {
+          uuid: user.uid,
+          email: user.email,
+          displayName: email.split('@')[0], // use email prefix as display name
+          createdAt: new Date(),
+          provider: 'email',
+        };
+        await setDoc(userRef, userEntry);
+      }
+    });
   } catch (err: any) {
     console.error(`${type} error:`, err);
     // handle login errors

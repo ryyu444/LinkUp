@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, createContext } from 'react';
+import { useState, useEffect, createContext } from 'react';
+import { getFirebaseAuth } from '@/(api)/_lib/firebase/firebaseClient';
 import {
   handleGoogleSetup,
   handleEmailPasswordSetup,
@@ -9,11 +10,18 @@ import User from '@/app/_types/auth/User';
 
 interface AuthContextType {
   user: User | null;
-  login: (type: 'Google' | 'EmailPassword', method: 'login' | 'signup', form: FormData) => Promise<void>;
+  loading: boolean;
+  login: (
+    type: 'Google' | 'EmailPassword',
+    method: 'login' | 'signup',
+    form: FormData
+  ) => Promise<void>;
   logout: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+export const AuthContext = createContext<AuthContextType>(
+  {} as AuthContextType
+);
 
 /**
  *
@@ -21,9 +29,28 @@ export const AuthContext = createContext<AuthContextType>({} as AuthContextType)
  */
 export function AuthContextProvider({ children }: any) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const auth = getFirebaseAuth();
 
-  console.log("AuthContextProvider");
-  console.log("Current User:", user);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) {
+        const userData: User = {
+          uuid: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          displayName: firebaseUser.displayName || 'Unnamed',
+          createdAt: new Date(),
+          provider: firebaseUser.providerData[0]?.providerId || 'unknown',
+        };
+        setUser(userData);
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  console.log('AuthContextProvider');
+  console.log('Current User:', user);
   // signup - implement; need to handle invalid logins
   /**
    *
@@ -33,23 +60,16 @@ export function AuthContextProvider({ children }: any) {
    * @returns
    */
   const login = async (type: String, method: String, form: FormData) => {
-    let user = null;
-    let attempts = 0;
-
-    while (attempts < 3 && !user) {
+    try {
       if (type === 'Google') {
-        user = await handleGoogleSetup();
+        await handleGoogleSetup();
       } else {
-        user = await handleEmailPasswordSetup(method, form);
+        await handleEmailPasswordSetup(method, form);
       }
-      attempts++;
+    } catch (error: any) {
+      console.error('Login Error:', error);
+      throw new Error(error.message || 'Login failed');
     }
-
-    if (!user) {
-      throw new Error('Login failed after 3 attempts');
-    }
-
-    setUser(user);
   };
 
   // logout
@@ -58,7 +78,7 @@ export function AuthContextProvider({ children }: any) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
