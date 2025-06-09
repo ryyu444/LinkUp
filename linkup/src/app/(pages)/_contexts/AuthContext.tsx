@@ -43,6 +43,8 @@ export function AuthContextProvider({ children }: any) {
           provider: firebaseUser.providerData[0]?.providerId || 'unknown',
         };
         setUser(userData);
+      } else {
+        setUser(null);
       }
       setLoading(false);
     });
@@ -74,7 +76,7 @@ export function AuthContextProvider({ children }: any) {
 
   // logout
   const logout = async () => {
-    setUser(null);
+    await auth.signOut();
   };
 
   return (

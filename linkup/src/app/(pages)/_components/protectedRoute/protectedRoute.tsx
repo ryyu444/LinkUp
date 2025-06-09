@@ -10,10 +10,11 @@ export default function ProtectedRoute({ children }: any) {
 
   console.log('ProtectedRoute');
   console.log('Current Path:', path);
+  console.log('Current User:', user);
 
   // only check for redirects if the path changes.
   useEffect(() => {
-    // if (loading) return;
+    if (loading) return;
     if (!user) {
       if (path !== '/login' && path !== '/register') {
         redirect('/login');
@@ -23,7 +24,7 @@ export default function ProtectedRoute({ children }: any) {
     }
   }, [path, loading, user]);
 
-  // If loading, do not render anything 
+  // If loading, render a placeholder
   // can modify this to show a loading spinner or skeleton
   if (loading) {
     return <div>Loading...</div>;

@@ -45,6 +45,7 @@ export async function handleGoogleSetup(): Promise<void> {
         };
         await setDoc(userRef, userEntry);
       }
+      
     });
   } catch (error: any) {
     console.error('Google Sign-in Error:', error);
