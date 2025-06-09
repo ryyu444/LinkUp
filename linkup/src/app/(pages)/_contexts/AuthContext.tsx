@@ -20,12 +20,10 @@ export const AuthContext = createContext<AuthContextType>({} as AuthContextType)
  * @returns Auth Context Provider used to track current user info for handling login/logout and specific rendering
  */
 export function AuthContextProvider({ children }: any) {
-  const [user, setUser] = useState<User | null>({
-    username: 'john',
-    password: 'smith',
-    accessToken: '0',
-  });
+  const [user, setUser] = useState<User | null>(null);
 
+  console.log("AuthContextProvider");
+  console.log("Current User:", user);
   // signup - implement; need to handle invalid logins
   /**
    *
@@ -52,13 +50,11 @@ export function AuthContextProvider({ children }: any) {
     }
 
     setUser(user);
-    return;
   };
 
   // logout
   const logout = async () => {
     setUser(null);
-    return;
   };
 
   return (

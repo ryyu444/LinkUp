@@ -4,7 +4,7 @@ import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -18,36 +18,37 @@ const db = getFirebaseDB();
 */
 export async function handleGoogleSetup(): Promise<User> {
   const provider = new GoogleAuthProvider();
-  
-   try {
+
+  try {
     // open a popup for Google sign-in
     const result = await signInWithPopup(auth, provider);
+    console.log(`Google Signin Result: ${result}`);
     // get user info from result
     const firebaseUser = result.user;
-    // get Firebase JWT token
-    const token = await firebaseUser.getIdToken();
+    console.log(`User: ${firebaseUser.toJSON()}`);
+
     // get a reference to the document
     const userRef = doc(db, 'users', firebaseUser.uid);
     // get the data from the document
     const snapshot = await getDoc(userRef);
+    let userEntry: User;
 
     // if new Google user, add to Firestore
     if (!snapshot.exists()) {
-      await setDoc(userRef, {
-        uid: firebaseUser.uid,
+      userEntry = {
+        uuid: firebaseUser.uid,
         email: firebaseUser.email,
         displayName: firebaseUser.displayName || 'Unnamed',
         createdAt: new Date(),
-        provider: 'google'
-      });
+        provider: 'google',
+      };
+      await setDoc(userRef, userEntry);
+    } else {
+      userEntry = snapshot.data() as User;
     }
 
     // return the app's User object
-    return {
-      username: firebaseUser.displayName || firebaseUser.email || 'Unknown User',
-      password: 'google-auth', // dummy value to satisfy your type
-      accessToken: token,
-    };
+    return userEntry;
   } catch (error: any) {
     console.error('Google Sign-in Error:', error);
     throw new Error('Google sign-in failed.');
@@ -61,7 +62,7 @@ export async function handleGoogleSetup(): Promise<User> {
     3. Write out logic of this function: Return the user if there is a match; Return null if invalid
 */
 export async function handleEmailPasswordSetup(
-  type: string,
+  type: String,
   form: FormData
 ): Promise<User | null> {
   // extract email and password from form
@@ -72,66 +73,72 @@ export async function handleEmailPasswordSetup(
     let userCredential;
     // handle the signuo
     if (type === 'signup') {
-      userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // get Firebase user
-      const user = userCredential.user;
-      // get a reference to the document and get data from the document
-      const userRef = doc(db, 'users', user.uid);
-      const snapshot = await getDoc(userRef);
-
-      // Double-check if profile exists in Firestore
-      if (!snapshot.exists()) {
-        await setDoc(userRef, {
-          uid: user.uid,
-          email: user.email,
-          displayName: email.split('@')[0],
-          createdAt: new Date(),
-          provider: 'email'
-        });
-      }
-
+      userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
     } else if (type == 'login') {
       userCredential = await signInWithEmailAndPassword(auth, email, password);
-    }else{
+    } else {
       throw new Error('Invalid authentication type.');
     }
 
     // get Firebase user
     const user = userCredential.user;
-    const token = await user.getIdToken();
-    // return the app's User object
-    return {
-      username: user.email || 'No email',
-      password: 'firebase-auth', // dummy value
-      accessToken: token,
-    };
-  } catch (err: any) {
-      console.error(`${type} error:`, err);
-      // handle login errors
-      type = type.toString();
-      if (type === 'login') {
-        if (err.code === 'auth/user-not-found') {
-          throw new Error('No user found with this email.');
-        } else if (err.code === 'auth/invalid-email') {
-          throw new Error('The email address is badly formatted.');
-        } else if (err.code === 'auth/invalid-credential') {
-          throw new Error('Invalid email or password.');
-        }
-      }
 
-      // handle signup errors
-      if (type === 'signup') {
-        if (err.code === 'auth/email-already-in-use') {
-          throw new Error('This email is already in use. Try logging in instead.');
-        } else if (err.code === 'auth/invalid-email') {
-          throw new Error('The email address is badly formatted.');
-        } else if (err.code === 'auth/weak-password') {
-          throw new Error('Password should be at least 6 characters.');
-        }
-      }
+    console.log(`Email & Password User: ${user.toJSON()}`);
+    // get a reference to the document and get data from the document
+    const userRef = doc(db, 'users', user.uid);
+    const snapshot = await getDoc(userRef);
+    let userEntry: User;
 
-      // fallback
-      throw new Error('Authentication failed. Please try again.');
-      
+    // Double-check if profile exists in Firestore
+    if (!snapshot.exists()) {
+      userEntry = {
+        uuid: user.uid,
+        email: user.email,
+        displayName: email.split('@')[0], // use email prefix as display name
+        createdAt: new Date(),
+        provider: 'email',
+      };
+      await setDoc(userRef, userEntry);
+    } else {
+      userEntry = snapshot.data() as User;
     }
+
+    console.log(`User Entry: ${userEntry}`);
+    // const token = await user.getIdToken();
+    // return the app's User object
+    return userEntry;
+  } catch (err: any) {
+    console.error(`${type} error:`, err);
+    // handle login errors
+    type = type.toString();
+    if (type === 'login') {
+      if (err.code === 'auth/user-not-found') {
+        throw new Error('No user found with this email.');
+      } else if (err.code === 'auth/invalid-email') {
+        throw new Error('The email address is badly formatted.');
+      } else if (err.code === 'auth/invalid-credential') {
+        throw new Error('Invalid email or password.');
+      }
+    }
+
+    // handle signup errors
+    if (type === 'signup') {
+      if (err.code === 'auth/email-already-in-use') {
+        throw new Error(
+          'This email is already in use. Try logging in instead.'
+        );
+      } else if (err.code === 'auth/invalid-email') {
+        throw new Error('The email address is badly formatted.');
+      } else if (err.code === 'auth/weak-password') {
+        throw new Error('Password should be at least 6 characters.');
+      }
+    }
+
+    // fallback
+    throw new Error('Authentication failed. Please try again.');
+  }
 }
