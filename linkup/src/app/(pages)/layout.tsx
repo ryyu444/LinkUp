@@ -32,12 +32,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AuthContextProvider>
-      <Navbar />
-      <html lang='en'>
-        <body>{children}</body>
-      </html>
-      <Footer />
-    </AuthContextProvider>
+    <html lang="en">
+      <body>
+        <AuthContextProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </AuthContextProvider>
+      </body>
+    </html>
   );
 }
