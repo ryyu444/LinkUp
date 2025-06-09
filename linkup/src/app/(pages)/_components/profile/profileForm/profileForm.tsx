@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { getFirebaseAuth, getFirebaseDB } from "@/(api)/_lib/firebase/firebaseClient";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
+// Component props interfaces for type safety
 interface ProfileFormProps {
   onClose: () => void;
-  refreshUserData: () => void; // Add refreshUserData prop
+  refreshUserData: () => void;
 }
 
 interface MainPageProps {
@@ -12,37 +13,44 @@ interface MainPageProps {
   className?: string;
   profileImage: string;
   setProfileImage: React.Dispatch<React.SetStateAction<string>>;
-  refreshUserData: () => void; // Add refreshUserData prop
+  refreshUserData: () => void;
 }
 
+// Main ProfileForm component: Entry point for the profile editing UI
 function ProfileForm({ onClose, refreshUserData }: ProfileFormProps) {
+  // State for managing profile image with a default placeholder
   const [profileImage, setProfileImage] = useState(
     "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
   );
 
   return (
     <div className="relative w-full h-full top-0 left-0 bg-white flex flex-col items-center">
+      {/* Container for centering content with max width */}
       <div className="relative w-full max-w-[1440px] h-full px-4">
         <Header />
         <MainPage 
           onClose={onClose} 
           profileImage={profileImage} 
           setProfileImage={setProfileImage} 
-          refreshUserData={refreshUserData} // Pass to MainPage
+          refreshUserData={refreshUserData} // for Main Page refresh
         />
       </div>
     </div>
   );
 }
 
+// Export the ProfileForm as the default component
 export default ProfileForm;
 
+// Header component: Displays the title and subtitle for the profile form
 function Header() {
   return (
     <div className="mt-[72px] w-full h-[100px] flex flex-col items-center justify-center">
+      {/* Main title */}
       <p className="font-inter font-semibold text-[60px] leading-[50px] mb-4 text-[#002855] text-center align-middle">
         Edit Your Profile
       </p>
+      {/* Subtitle with purpose explanation */}
       <p className="font-inter font-semibold text-[20px] leading-[20px] text-center align-middle text-[#002855]">
         Tell us about yourself so others can find your session
       </p>
@@ -50,10 +58,13 @@ function Header() {
   );
 }
 
+// MainPage component: Organizes the layout into left and right sections
 function MainPage({ onClose, profileImage, setProfileImage, className, refreshUserData }: MainPageProps) {
   return (
     <div className={`relative flex w-full h-full max-w-[1330px] mx-auto px-4 pt-[20px] ${className || ""}`} style={{ paddingTop: "20px" }}>
+      {/* Left side for profile image upload */}
       <Leftside profileImage={profileImage} setProfileImage={setProfileImage} className="w-[30%]" />
+      {/* Right side for profile details form */}
       <Rightside 
         onClose={onClose} 
         profileImage={profileImage} 
@@ -65,7 +76,9 @@ function MainPage({ onClose, profileImage, setProfileImage, className, refreshUs
   );
 }
 
+// Leftside component: Handles profile image display and upload
 function Leftside({ profileImage, setProfileImage, className }: { profileImage: string, setProfileImage: React.Dispatch<React.SetStateAction<string>>, className?: string }) {
+  // Handler for image upload via URL prompt
   const handleUploadClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     const url = prompt("Enter the image URL (Warning: This will refresh your form, so save other changes prior to upload!):");
@@ -81,6 +94,7 @@ function Leftside({ profileImage, setProfileImage, className }: { profileImage: 
     }
   };
 
+  // Function to save profile image URL to Firebase
   const saveProfileImageToDatabase = async (url: string) => {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -106,10 +120,12 @@ function Leftside({ profileImage, setProfileImage, className }: { profileImage: 
 
   return (
     <div className={`${className} h-full flex flex-col items-end p-4`}>
+      {/* Profile image display */}
       <div className="w-full max-w-[360px] aspect-square rounded-full overflow-hidden border-[1px] border-[#002855] mb-4">
         <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
       </div>
 
+      {/* Button to trigger image upload */}
       <button
         onClick={handleUploadClick}
         className="w-full max-w-[360px] h-[60px] rounded-[5px] bg-[#F5F5F5] text-[#002855] 
@@ -123,7 +139,9 @@ function Leftside({ profileImage, setProfileImage, className }: { profileImage: 
   );
 }
 
+// Rightside component: Contains form fields for profile details
 function Rightside({ onClose, profileImage, setProfileImage, className, refreshUserData }: ProfileFormProps & { className?: string, profileImage: string, setProfileImage: React.Dispatch<React.SetStateAction<string>>, refreshUserData: () => void }) {
+  // State variables for form inputs
   const [name, setName] = useState("");
   const [major, setMajor] = useState("");
   const [bio, setBio] = useState("");
@@ -134,10 +152,12 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
   const [subjects, setSubjects] = useState<string[]>([]);
   const [profileSaved, setProfileSaved] = useState(false);
 
+  // Predefined options for dropdowns and buttons
   const years = ["1st year", "2nd year", "3rd year", "4th year"];
   const options = ["Quiet", "Some Noise", "Collaborative"];
   const groupSizes = ["1 on 1", "Small Group (2-4)", "Large Group (5+)"];
 
+  // Effect to fetch existing profile data from Firebase
   useEffect(() => {
     const fetchProfileData = async () => {
       const auth = getFirebaseAuth();
@@ -166,6 +186,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
     fetchProfileData();
   }, [profileImage]);
 
+  // Handler to add a new subject to the list
   const handleAddClick = () => {
     if (inputValue.trim()) {
       setSubjects([...subjects, inputValue]);
@@ -173,10 +194,12 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
     }
   };
 
+  // Handler to remove a subject from the list
   const handleDeleteClick = (index: number) => {
     setSubjects(subjects.filter((_, i) => i !== index));
   };
 
+  // Function to save profile data to Firebase
   const handleSaveProfile = async () => {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -213,11 +236,12 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
     }
   };
 
+  // Handler for skipping profile edits with blank data
   const handleSkip = async () => {
     if (profileSaved) {
       alert("Any unsaved changes will be discarded.");
       onClose();
-      refreshUserData(); // Trigger refresh even on skip to ensure consistency
+      refreshUserData(); // Trigger refresh on skip
       return;
     }
 
@@ -248,7 +272,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
       await setDoc(userDocRef, profileData, { merge: true });
       alert("Profile saved with blank data.");
       onClose();
-      refreshUserData(); // Trigger refresh of user data on main page
+      refreshUserData();
     } catch (error) {
       console.error("Error saving profile:", error);
       alert("Failed to save profile.");
@@ -270,8 +294,9 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
         />
       </div>
 
-      {/* Major and Year */}
+      {/* Major and Year Section */}
       <div className="relative flex w-full max-w-[770px] gap-4">
+        {/* Major input */}
         <div className="w-3/5">
           <p className="font-inter font-semibold text-[20px] leading-[25px] text-[#002855] mb-1">
             Major
@@ -284,6 +309,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
           />
         </div>
 
+        {/* Year selection dropdown */}
         <div className="w-2/5">
           <p className="font-inter font-semibold text-[20px] leading-[25px] text-[#002855] mb-1">
             Year
@@ -313,8 +339,9 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
         />
       </div>
 
-      {/* Study Preferences */}
+      {/* Study Preferences and Group Size Section */}
       <div className="relative flex w-full max-w-[770px] gap-4">
+        {/* Study preferences buttons */}
         <div className="w-2/5">
           <p className="font-inter font-semibold text-[20px] leading-[25px] mb-2 text-[#002855]">
             Study Preferences
@@ -333,8 +360,10 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
           </div>
         </div>
 
+        {/* Spacer for layout */}
         <div className="w-1/5"></div>
 
+        {/* Preferred group size buttons */}
         <div className="w-2/5">
           <p className="font-inter font-semibold text-[20px] leading-[25px] mb-2 text-[#002855]">
             Preferred Group Size
@@ -354,17 +383,19 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
         </div>
       </div>
 
-      {/* Subjects I'm Studying */}
+      {/* Subjects I'm Studying Section */}
       <div className="relative w-full max-w-[770px] mt-[30px]">
         <p className="font-inter font-semibold text-[20px] leading-[25px] mb-2 text-[#002855]">
           Subjects I'm Studying
         </p>
+        {/* Display list of added subjects */}
         <div className="flex flex-wrap gap-x-3">
           {subjects.map((subject, index) => (
             <div key={index} className="w-max px-4 py-0.5 rounded-[20px] border bg-[#002855] flex items-center mb-2">
               <div className="font-inter font-semibold text-[20px] leading-[25px] text-white text-center align-middle">
                 {subject}
               </div>
+              {/* Delete button for each subject */}
               <button
                 onClick={() => handleDeleteClick(index)}
                 className="ml-2 text-white font-inter text-[30px] leading-[25px] hover:text-[#DD0000] focus:outline-none"
@@ -375,6 +406,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
             </div>
           ))}
         </div>
+        {/* Input and button for adding new subjects */}
         <div className="relative w-full">
           <input
             type="text"
@@ -398,14 +430,16 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
         </div>
       </div>
 
-      {/* Save Profile Button */}
+      {/* Save and Skip Buttons Section */}
       <div className="relative w-full max-w-[770px] mt-[60px] flex justify-end gap-2">
+        {/* Skip button to discard or save blank data */}
         <button
           onClick={handleSkip}
           className="text-[#002855] border border-[#002855] px-6 py-3 rounded-[5px] hover:bg-gray-100 font-inter font-semibold text-[20px] leading-[20px]"
         >
           Skip for Now
         </button>
+        {/* Save button to persist profile data */}
         <button
           onClick={handleSaveProfile}
           className="bg-[#002855] border border-[#002855] rounded-[5px] text-white px-6 py-3 hover:bg-[#004080] font-inter font-semibold text-[20px] leading-[20px]"
@@ -414,6 +448,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className, refreshU
         </button>
       </div>
 
+      {/* Spacer for bottom padding */}
       <div className="h-[18px]" />
     </div>
   );

@@ -209,7 +209,7 @@ function StudyInterest({ subjects, groupSize, studyPreference }: { subjects: str
           Study Preferences
         </p>
 
-        {/* Replace text "Study Preference" with the sound image */}
+        {/* Study Preference */}
         <div className="flex items-center mb-5">
           <img src="sound.svg" alt="Study Preference" className="w-[29px] h-[29px] mr-2" />
           <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle">
@@ -217,7 +217,7 @@ function StudyInterest({ subjects, groupSize, studyPreference }: { subjects: str
           </p>
         </div>
 
-        {/* Replace text "Group Size" with the group size image */}
+        {/* Group Size */}
         <div className="flex items-center mb-5">
           <img src="groupsize.svg" alt="Group Size" className="w-[29px] h-[29px] mr-2" />
           <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle">
