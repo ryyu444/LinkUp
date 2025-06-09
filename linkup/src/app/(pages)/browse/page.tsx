@@ -1,5 +1,11 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { getFirebaseDB } from "@/(api)/_lib/firebase/firebaseClient";
 import ProtectedRoute from "../_components/protectedRoute/protectedRoute";
 import SessionCard from "../_components/session/sessionCard/sessionCard";
+import { Timestamp } from "firebase/firestore";
 
 /*
     Corresponds to Browse figma page
@@ -13,49 +19,45 @@ import SessionCard from "../_components/session/sessionCard/sessionCard";
 // add state for filters
 // ignore pagination since its not that easy.
 
+interface Session {
+  id: string;
+  title: string;
+  location: string;
+  time: string;
+  date: Timestamp;
+  createdBy: string;
+  attendees?: string[];
+  noise?: string;
+  tags?: string[];
+  maxSize?: number;
+}
+
 export default function Browse() {
-  const dummySessions = [
-    {
-      title: "Data Structures & Algorithms",
-      location: "Shields Library",
-      time: "3:00 PM - 5:00 PM",
-      members: "3/5",
-      noise: "Quiet",
-      tags: ["Algorithms", "CS", "Homework"],
-    },
-    {
-      title: "Cellular Biology Exam Prep",
-      location: "Esau Hall",
-      time: "10:00 AM - 12:00 PM",
-      members: "4/8",
-      noise: "Moderate",
-      tags: ["Biology", "Exam", "Group"],
-    },
-    {
-      title: "MAT 21C Study Group",
-      location: "Math Building",
-      time: "4:30 PM - 6:30 PM",
-      members: "2/6",
-      noise: "Silent",
-      tags: ["Math", "Calculus", "Study"],
-    },
-    {
-      title: "Fluid Mechanics Homework",
-      location: "Bainer Hall",
-      time: "5:00 PM - 7:30 PM",
-      members: "5/8",
-      noise: "Quiet",
-      tags: ["Engineering", "Homework"],
-    },
-    {
-      title: "ECS 162 Workshop",
-      location: "Virtual (Zoom)",
-      time: "7:00 PM - 9:00 PM",
-      members: "8/15",
-      noise: "Moderate",
-      tags: ["CS", "Web Dev", "Workshop"],
-    },
-  ];
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        setLoading(true);
+        const db = getFirebaseDB();
+        const q = query(collection(db, "sessions"), orderBy("date"));
+        const snapshot = await getDocs(q);
+        const sessionList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Session[];
+        setSessions(sessionList);
+      } catch (error) {
+        console.error("Error fetching sessions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, []);
+
   return (
     <ProtectedRoute>
       <div className="px-8 py-6 bg-stone-50 min-h-screen">
@@ -132,7 +134,7 @@ export default function Browse() {
         {/* Available Sessions */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sky-950 text-xl font-bold">
-            Available Sessions ({dummySessions.length})
+            Available Sessions ({sessions.length})
           </h2>
           <div className="flex items-center gap-2">
             <span className="text-gray-600 text-sm">Sort by:</span>
@@ -150,9 +152,23 @@ export default function Browse() {
           "
           style={{ height: "calc(100vh - 400px)" }}
         >
-          {dummySessions.slice(0, 6).map((session, index) => (
-            <SessionCard key={index} {...session} />
-          ))}
+          {loading ? (
+            <p>Loading sessions...</p>
+          ) : (
+            sessions.slice(0, 6).map((session) => (
+              <SessionCard
+                key={session.id}
+                title={session.title}
+                location={session.location}
+                date={session.date.toDate().toDateString()} // converts Timestamp → readable string
+                time={session.time} // already a string
+                members={`${session.attendees?.length ?? 0}/${session.maxSize ?? '-'}`}
+                noise={session.noise ?? 'Unknown'}
+                tags={session.tags ?? []}
+              />
+            ))
+            
+          )}
         </div>
 
         {/* Pagination — you can customize this */}

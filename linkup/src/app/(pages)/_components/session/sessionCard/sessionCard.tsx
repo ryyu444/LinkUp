@@ -1,8 +1,8 @@
 // Card for Sessions in Browse
 "use client";
 
+import { Timestamp } from "firebase/firestore";
 import SessionPopup from "../sessionPopup/sessionPopup";
-
 
 /*
   Make sure the View button opens up a SessionPopup component with the session details
@@ -18,6 +18,7 @@ export default function SessionCard({
 }: {
   title: string;
   location: string;
+  date: string;
   time: string;
   members: string;
   noise: string;
@@ -26,18 +27,18 @@ export default function SessionCard({
   return (
     <div
       className="
-  bg-white 
-  rounded-[20px] 
-  shadow-md 
-  outline outline-1 outline-gray-200 
-  p-6 
-  w-full 
-  h-auto 
-  min-h-[250px] 
-  flex flex-col justify-between
-  overflow-hidden
-  break-words
-"
+        bg-white 
+        rounded-[20px] 
+        shadow-md 
+        outline outline-1 outline-gray-200 
+        p-6 
+        w-full 
+        h-auto 
+        min-h-[250px] 
+        flex flex-col justify-between
+        overflow-hidden
+        break-words
+      "
     >
       <div className="text-gray-900 text-base font-bold mb-2">{title}</div>
       <div className="text-gray-600 text-sm mb-1">{location}</div>
