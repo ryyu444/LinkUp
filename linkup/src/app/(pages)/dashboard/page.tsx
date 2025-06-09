@@ -36,8 +36,11 @@ export default function Dashboard() {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const router = useRouter();
   const auth = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
+    if (!user?.uuid) return;
+    
     const fetchSessions = async () => {
       try {
         const db = getFirebaseDB();
@@ -66,8 +69,7 @@ export default function Dashboard() {
               Dashboard
             </h1>
             <p className='text-gray-600 text-base font-normal leading-normal mt-1'>
-              Welcome back, Jane! Ready to study?
-              {/* Welcome back, {auth?.user?.name ?? 'Guest'}! Ready to study? */}
+              Welcome back, {user?.displayName ?? 'Guest'}! Ready to study?
             </p>
           </div>
 
