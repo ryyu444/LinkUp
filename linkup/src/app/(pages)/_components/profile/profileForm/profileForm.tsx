@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getFirebaseAuth, getFirebaseDB } from "@/(api)/_lib/firebase/firebaseClient";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 interface ProfileFormProps {
   onClose: () => void;
@@ -54,15 +54,44 @@ function MainPage({ onClose, profileImage, setProfileImage, className }: MainPag
 
 function Leftside({ profileImage, setProfileImage, className }: { profileImage: string, setProfileImage: React.Dispatch<React.SetStateAction<string>>, className?: string }) {
   // This function will prompt the user to enter an image URL
-  const handleUploadClick = () => {
+  const handleUploadClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault(); // Prevent any default refresh behavior
     const url = prompt("Enter the image URL:");
 
     if (url) {
       // Check if the URL is a valid image URL
       const img = new Image();
-      img.onload = () => setProfileImage(url); // Update profileImage state globally
+      img.onload = () => {
+        setProfileImage(url); // Update the profileImage state which triggers a re-render of the image
+        saveProfileImageToDatabase(url); // Optionally save the new image URL to Firestore
+      };
       img.onerror = () => alert("Invalid URL. Please try again with a valid image URL.");
       img.src = url;
+    }
+  };
+
+
+  // Save the profile image to Firestore
+  const saveProfileImageToDatabase = async (url: string) => {
+    const auth = getFirebaseAuth();
+    const db = getFirebaseDB();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      alert("No authenticated user found.");
+      return;
+    }
+
+    const profileData = {
+      profileImageUrl: url, // Save the new profile image URL here
+    };
+
+    try {
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await setDoc(userDocRef, profileData, { merge: true }); // Update Firestore with new profile image
+    } catch (error) {
+      console.error("Error saving profile image:", error);
+      alert("Failed to save profile image.");
     }
   };
 
@@ -85,6 +114,7 @@ function Leftside({ profileImage, setProfileImage, className }: { profileImage: 
   );
 }
 
+
 function Rightside({ onClose, profileImage, setProfileImage, className }: ProfileFormProps & { className?: string, profileImage: string, setProfileImage: React.Dispatch<React.SetStateAction<string>> }) {
   const [name, setName] = useState("");
   const [major, setMajor] = useState("");
@@ -98,6 +128,34 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
   const years = ["1st year", "2nd year", "3rd year", "4th year"];
   const options = ["Quiet", "Some Noise", "Collaborative"];
   const groupSizes = ["1 on 1", "Small (2-4)", "Large (5+)"];
+
+  // Fetch user profile data from Firebase when the component mounts
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      const auth = getFirebaseAuth();
+      const db = getFirebaseDB();
+      const currentUser = auth.currentUser;
+
+      if (currentUser) {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setName(userData.name || "");
+          setMajor(userData.major || "");
+          setSelectedYear(userData.year || "");
+          setBio(userData.biography || "");
+          setSubjects(userData.subjects || []);
+          setSelected(userData.studyPreference || "");
+          setSelectedSize(userData.groupSize || "");
+          setProfileImage(userData.profileImageUrl || profileImage);
+        }
+      }
+    };
+
+    fetchProfileData();
+  }, [profileImage]);
 
   const handleAddClick = () => {
     if (inputValue.trim()) {
@@ -152,7 +210,6 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
         </p>
         <input
           type="text"
-          placeholder="Enter Your Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[24px] leading-[50px] outline-none mb-3 w-full"
@@ -167,7 +224,6 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
           </p>
           <input
             type="text"
-            placeholder="Enter Your Major"
             value={major}
             onChange={(e) => setMajor(e.target.value)}
             className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[24px] leading-[50px] outline-none mb-3 w-full"
@@ -201,10 +257,9 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
           About Yourself
         </p>
         <textarea
-          placeholder="Enter Your Biography Here"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[20px] leading-[25px] outline-none w-full min-h-[120px] resize-none mb-[40px]"
+          className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[20px] leading-[25px] outline-none w-full min-h-[120px] resize-none mb-[60px]"
         />
       </div>
 
@@ -273,7 +328,6 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
         <div className="relative w-full">
           <input
             type="text"
-            placeholder="Enter Here"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => {
