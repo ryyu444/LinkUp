@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useContext, useState } from 'react';
 import { AuthContext } from '@/app/(pages)/_contexts/AuthContext';
 import { Button } from '@/app/(pages)/_components/ui/button';
-
+import { usePathname } from 'next/navigation';
 /*
   TODO
    1. Need to render the login and signup buttons only if the user is not logged in
@@ -14,7 +14,13 @@ import { Button } from '@/app/(pages)/_components/ui/button';
 export default function Navbar() {
   const auth = useContext(AuthContext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // hide the navbar in login and sign up page
+  const pathname = usePathname();
+  const hide = pathname === '/login' || pathname === '/register';
+  if (hide) return null;
 
+  // hide the right button when user is logged in
+  const hidebutton = pathname === '/dashboard' || pathname == '/browse' || pathname === '/session'
   return (
     // space between logo and buttons with padding and bottom border
     <header className='h-[64px] flex justify-between items-center p-6 border-b'>
@@ -23,6 +29,8 @@ export default function Navbar() {
         <Image src='/logo.png' alt='LinkUp Logo' width={32} height={32} />
         <span className='text-xl font-bold text-blue-950'>LinkUp</span>
       </div>
+      {/* check for hide the ritht button */}
+      { ! hidebutton && (
       <div className='space-x-4'>
         {/* create the login and signup button */}
         <Link href='/login'>
@@ -32,6 +40,7 @@ export default function Navbar() {
           <Button>Sign Up</Button>
         </Link>
       </div>
+      )}
     </header>
   );
 }
