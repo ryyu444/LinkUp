@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useContext } from 'react';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit, Timestamp } from 'firebase/firestore';
 import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '../_contexts/AuthContext';
@@ -9,8 +9,8 @@ import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
 import InfoCard from '../_components/dashboard/infoCard/infoCard';
 import ActivityCard from '../_components/dashboard/activityCard/activityCard';
 import StatCard from '../_components/dashboard/statCard/statCard';
-// import SessionPopup from "../_components/session/sessionPopup/sessionPopup";
-import SessionPreview from '../_components/dashboard/sessionPreview/sessionPreview';
+import SessionPopup from "../_components/session/sessionPopup/sessionPopup";
+import SessionPreview from '../_components/session/sessionPreview/sessionPreview';
 
 import { Search, Plus, Folder } from 'lucide-react';
 
@@ -19,7 +19,7 @@ interface Session {
   title: string;
   location: string;
   time: string;
-  date: string;
+  date: Timestamp;
   createdBy: string;
   [key: string]: any;
 }
@@ -32,54 +32,28 @@ interface Session {
 export default function Dashboard() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [showCreatePopup, setShowCreatePopup] = useState(false);
+  const [showSessionPopup, setShowSessionPopup] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const router = useRouter();
   const auth = useContext(AuthContext);
 
-  // useEffect(() => {
-  //   const fetchSessions = async () => {
-  //     const db = getFirebaseDB();
-  //     const q = query(collection(db, "sessions"), orderBy("date"), limit(3));
-  //     const snapshot = await getDocs(q);
-  //     const sessionList = snapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     })) as Session[];
-  //     setSessions(sessionList);
-  //   };
-
-  //   fetchSessions();
-  // }, []);
-
   useEffect(() => {
-    setSessions([
-      {
-        id: '1',
-        title: 'Calculus Study Group',
-        location: 'Shields Library',
-        time: '3:00 PM - 5:00 PM',
-        date: 'Tomorrow',
-        createdBy: 'Jane',
-        attendees: ['A1', 'A2', 'A3', 'A4', 'A5'],
-      },
-      {
-        id: '2',
-        title: 'Chemistry Lab Prep',
-        location: 'Science Building',
-        time: '1:00 PM - 3:00 PM',
-        date: 'Friday',
-        createdBy: 'Michael',
-        attendees: ['B1', 'B2'],
-      },
-      {
-        id: '3',
-        title: 'Programming Project',
-        location: 'Student Center',
-        time: '10:00 AM - 2:00 PM',
-        date: 'Saturday',
-        createdBy: 'You',
-        attendees: ['C1', 'C2', 'C3'],
-      },
-    ]);
+    const fetchSessions = async () => {
+      try {
+        const db = getFirebaseDB();
+        const q = query(collection(db, 'sessions'), orderBy('date'), limit(3));
+        const snapshot = await getDocs(q);
+        const sessionList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Session[];
+        setSessions(sessionList);
+      } catch (error) {
+        console.error('Error fetching sessions:', error);
+      }
+    };
+  
+    fetchSessions();
   }, []);
 
   return (
@@ -93,6 +67,7 @@ export default function Dashboard() {
             </h1>
             <p className='text-gray-600 text-base font-normal leading-normal mt-1'>
               Welcome back, Jane! Ready to study?
+              {/* Welcome back, {auth?.user?.name ?? 'Guest'}! Ready to study? */}
             </p>
           </div>
 
@@ -137,7 +112,16 @@ export default function Dashboard() {
           </div>
           <div className='space-y-4'>
             {sessions.map((session) => (
-              <SessionPreview key={session.id} session={session} />
+              <div
+                key={session.id}
+                onClick={() => {
+                  setSelectedSession(session);
+                  setShowSessionPopup(true);
+                }}
+                className="cursor-pointer"
+              >
+                <SessionPreview session={session} />
+              </div>
             ))}
           </div>
 
@@ -159,6 +143,12 @@ export default function Dashboard() {
         )} */}
         </div>
       </div>
+      {showSessionPopup && selectedSession && (
+        <SessionPopup
+          session={selectedSession}
+          onClose={() => setShowSessionPopup(false)}
+        />
+      )}
     </ProtectedRoute>
   );
 }
