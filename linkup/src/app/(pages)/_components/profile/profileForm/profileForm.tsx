@@ -124,6 +124,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]); // subjects array to store user's subjects
+  const [profileSaved, setProfileSaved] = useState(false); // Track whether profile is saved or not
 
   const years = ["1st year", "2nd year", "3rd year", "4th year"];
   const options = ["Quiet", "Some Noise", "Collaborative"];
@@ -150,6 +151,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
           setSelected(userData.studyPreference || "");
           setSelectedSize(userData.groupSize || "");
           setProfileImage(userData.profileImageUrl || profileImage);
+          setProfileSaved(userData.profileSaved || false); // Check profileSaved flag
         }
       }
     };
@@ -168,6 +170,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
     setSubjects(subjects.filter((_, i) => i !== index));  // Delete subject at the specified index
   };
 
+  // Save profile data to Firestore
   const handleSaveProfile = async () => {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -188,12 +191,56 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
       subjects,  // Include subjects
       email: currentUser.email,
       profileImageUrl: profileImage,  // Save the image URL here
+      profileSaved: true, // Set profileSaved as true when the profile is saved
     };
 
     try {
       const userDocRef = doc(db, "users", currentUser.uid);
       await setDoc(userDocRef, profileData, { merge: true });  // Save data with subjects
       alert("Profile saved successfully!");
+      setProfileSaved(true);
+      onClose();
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      alert("Failed to save profile.");
+    }
+  };
+
+  // Save blank user profile if "Skip for Now" is clicked
+  const handleSkip = async () => {
+    if (profileSaved) {
+      // If the profile is already saved, discard changes
+      alert("Any unsaved changes will be discarded.");
+      onClose();
+      return;
+    }
+
+    const auth = getFirebaseAuth();
+    const db = getFirebaseDB();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      alert("No authenticated user found.");
+      return;
+    }
+
+    const profileData = {
+      name: "",  // Empty name
+      major: "",  // Empty major
+      year: "",  // Empty year
+      biography: "",  // Empty bio
+      studyPreference: "",  // Empty study preference
+      groupSize: "",  // Empty group size
+      subjects: [], // Empty subjects
+      email: currentUser.email,
+      profileImageUrl: profileImage,  // Save the image URL here
+      profileSaved: false, // Set profileSaved as false when skipping
+    };
+
+    try {
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await setDoc(userDocRef, profileData, { merge: true });
+      alert("Profile saved with blank data.");
       onClose();
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -239,13 +286,9 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
             onChange={(e) => setSelectedYear(e.target.value)}
             className="w-full h-[69px] border border-[#6B819B] rounded-[5px] font-inter text-[24px] leading-[50px] px-4 outline-none"
           >
-            <option value="" disabled>
-              Select Year
-            </option>
+            <option value="" disabled>Select Year</option>
             {years.map((year, index) => (
-              <option key={index} value={year}>
-                {year}
-              </option>
+              <option key={index} value={year}>{year}</option>
             ))}
           </select>
         </div>
@@ -351,7 +394,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
       {/* Save Profile Button */}
       <div className="relative w-full max-w-[770px] mt-[60px] flex justify-end gap-2">
         <button
-          onClick={onClose}
+          onClick={handleSkip}
           className="text-[#002855] border border-[#002855] px-6 py-3 rounded-[5px] hover:bg-gray-100 font-inter font-semibold text-[20px] leading-[20px]"
         >
           Skip for Now
