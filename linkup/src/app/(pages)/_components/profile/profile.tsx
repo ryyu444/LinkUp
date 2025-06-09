@@ -11,45 +11,46 @@ function MainPage() {
     major: 'Unknown Major',
     year: 'nth Year',
     profileImageUrl: 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg',
-    subjects: [], // Initialize subjects as an empty array
-    biography: '', // Initialize biography as an empty string
-    groupSize: '', // Initialize groupSize as an empty string
-    studyPreference: '', // Initialize studyPreference as an empty string
+    subjects: [],
+    biography: '',
+    groupSize: '',
+    studyPreference: '',
   });
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      const auth = getFirebaseAuth();
-      const db = getFirebaseDB();
-      const currentUser = auth.currentUser;
+  // Function to fetch user profile data
+  const fetchUserProfile = async () => {
+    const auth = getFirebaseAuth();
+    const db = getFirebaseDB();
+    const currentUser = auth.currentUser;
 
-      if (currentUser) {
-        const userDocRef = doc(db, 'users', currentUser.uid);
-        const userDoc = await getDoc(userDocRef);
+    if (currentUser) {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
 
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          console.log('Fetched user data:', userData);  // Check the fetched data in console
-          setUserData({
-            name: userData.name || 'Anonymous',
-            major: userData.major || 'Unknown Major',
-            year: userData.year || 'nth Year',
-            profileImageUrl: userData.profileImageUrl || 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg',
-            subjects: userData.subjects || [], // Default to empty array if undefined
-            biography: userData.biography || '', // Default to empty string if undefined
-            groupSize: userData.groupSize || '', // Default to empty string if undefined
-            studyPreference: userData.studyPreference || '', // Default to empty string if undefined
-          });
-        }
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        console.log('Fetched user data:', userData);
+        setUserData({
+          name: userData.name || 'Anonymous',
+          major: userData.major || 'Unknown Major',
+          year: userData.year || 'nth Year',
+          profileImageUrl: userData.profileImageUrl || 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg',
+          subjects: userData.subjects || [],
+          biography: userData.biography || '',
+          groupSize: userData.groupSize || '',
+          studyPreference: userData.studyPreference || '',
+        });
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchUserProfile();
   }, []);
 
   return (
     <div>
-      <Header userData={userData} />
+      <Header userData={userData} refreshUserData={fetchUserProfile} />
       <NameSection userData={userData} />
       <AboutMe bio={userData.biography} />
       <StudyInterest 
@@ -61,10 +62,8 @@ function MainPage() {
   );
 }
 
-
-
-function Header({ userData }: { userData: any }) {
-  const [isModalOpen, setIsModalOpen] = useState(true);
+function Header({ userData, refreshUserData }: { userData: any, refreshUserData: () => void }) {
+  const [isModalOpen, setIsModalOpen] = useState(false); // Changed to false so modal doesn't open by default
 
   return (
     <div className="relative h-[252px] w-full max-w-[9999px] mx-auto">
@@ -105,7 +104,7 @@ function Header({ userData }: { userData: any }) {
       {isModalOpen && (
         <div className="fixed inset-0 flex z-50 backdrop-filter backdrop-blur-md justify-center">
           <div className="bg-white w-full max-w-[1440px] relative overflow-auto">
-            <ProfileForm onClose={() => setIsModalOpen(false)} />
+            <ProfileForm onClose={() => setIsModalOpen(false)} refreshUserData={refreshUserData} />
           </div>
         </div>
       )}

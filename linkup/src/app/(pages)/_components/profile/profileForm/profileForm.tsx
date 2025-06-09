@@ -4,6 +4,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 
 interface ProfileFormProps {
   onClose: () => void;
+  refreshUserData: () => void; // Add refreshUserData prop
 }
 
 interface MainPageProps {
@@ -11,9 +12,10 @@ interface MainPageProps {
   className?: string;
   profileImage: string;
   setProfileImage: React.Dispatch<React.SetStateAction<string>>;
+  refreshUserData: () => void; // Add refreshUserData prop
 }
 
-function ProfileForm({ onClose }: ProfileFormProps) {
+function ProfileForm({ onClose, refreshUserData }: ProfileFormProps) {
   const [profileImage, setProfileImage] = useState(
     "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
   );
@@ -22,7 +24,12 @@ function ProfileForm({ onClose }: ProfileFormProps) {
     <div className="relative w-full h-full top-0 left-0 bg-white flex flex-col items-center">
       <div className="relative w-full max-w-[1440px] h-full px-4">
         <Header />
-        <MainPage onClose={onClose} profileImage={profileImage} setProfileImage={setProfileImage} />
+        <MainPage 
+          onClose={onClose} 
+          profileImage={profileImage} 
+          setProfileImage={setProfileImage} 
+          refreshUserData={refreshUserData} // Pass to MainPage
+        />
       </div>
     </div>
   );
@@ -43,35 +50,37 @@ function Header() {
   );
 }
 
-function MainPage({ onClose, profileImage, setProfileImage, className }: MainPageProps) {
+function MainPage({ onClose, profileImage, setProfileImage, className, refreshUserData }: MainPageProps) {
   return (
     <div className={`relative flex w-full h-full max-w-[1330px] mx-auto px-4 pt-[20px] ${className || ""}`} style={{ paddingTop: "20px" }}>
       <Leftside profileImage={profileImage} setProfileImage={setProfileImage} className="w-[30%]" />
-      <Rightside onClose={onClose} profileImage={profileImage} setProfileImage={setProfileImage} className="w-[70%] ml-4" />
+      <Rightside 
+        onClose={onClose} 
+        profileImage={profileImage} 
+        setProfileImage={setProfileImage} 
+        className="w-[70%] ml-4" 
+        refreshUserData={refreshUserData} // Pass to Rightside
+      />
     </div>
   );
 }
 
 function Leftside({ profileImage, setProfileImage, className }: { profileImage: string, setProfileImage: React.Dispatch<React.SetStateAction<string>>, className?: string }) {
-  // This function will prompt the user to enter an image URL
   const handleUploadClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault(); // Prevent any default refresh behavior
+    event.preventDefault();
     const url = prompt("Enter the image URL (Warning: This will refresh your form, so save other changes prior to upload!):");
 
     if (url) {
-      // Check if the URL is a valid image URL
       const img = new Image();
       img.onload = () => {
-        setProfileImage(url); // Update the profileImage state which triggers a re-render of the image
-        saveProfileImageToDatabase(url); // Optionally save the new image URL to Firestore
+        setProfileImage(url);
+        saveProfileImageToDatabase(url);
       };
       img.onerror = () => alert("Invalid URL. Please try again with a valid image URL.");
       img.src = url;
     }
   };
 
-
-  // Save the profile image to Firestore
   const saveProfileImageToDatabase = async (url: string) => {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -83,12 +92,12 @@ function Leftside({ profileImage, setProfileImage, className }: { profileImage: 
     }
 
     const profileData = {
-      profileImageUrl: url, // Save the new profile image URL here
+      profileImageUrl: url,
     };
 
     try {
       const userDocRef = doc(db, "users", currentUser.uid);
-      await setDoc(userDocRef, profileData, { merge: true }); // Update Firestore with new profile image
+      await setDoc(userDocRef, profileData, { merge: true });
     } catch (error) {
       console.error("Error saving profile image:", error);
       alert("Failed to save profile image.");
@@ -114,8 +123,7 @@ function Leftside({ profileImage, setProfileImage, className }: { profileImage: 
   );
 }
 
-
-function Rightside({ onClose, profileImage, setProfileImage, className }: ProfileFormProps & { className?: string, profileImage: string, setProfileImage: React.Dispatch<React.SetStateAction<string>> }) {
+function Rightside({ onClose, profileImage, setProfileImage, className, refreshUserData }: ProfileFormProps & { className?: string, profileImage: string, setProfileImage: React.Dispatch<React.SetStateAction<string>>, refreshUserData: () => void }) {
   const [name, setName] = useState("");
   const [major, setMajor] = useState("");
   const [bio, setBio] = useState("");
@@ -123,14 +131,13 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
   const [selected, setSelected] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
-  const [subjects, setSubjects] = useState<string[]>([]); // subjects array to store user's subjects
-  const [profileSaved, setProfileSaved] = useState(false); // Track whether profile is saved or not
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [profileSaved, setProfileSaved] = useState(false);
 
   const years = ["1st year", "2nd year", "3rd year", "4th year"];
   const options = ["Quiet", "Some Noise", "Collaborative"];
   const groupSizes = ["1 on 1", "Small Group (2-4)", "Large Group (5+)"];
 
-  // Fetch user profile data from Firebase when the component mounts
   useEffect(() => {
     const fetchProfileData = async () => {
       const auth = getFirebaseAuth();
@@ -151,7 +158,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
           setSelected(userData.studyPreference || "");
           setSelectedSize(userData.groupSize || "");
           setProfileImage(userData.profileImageUrl || profileImage);
-          setProfileSaved(userData.profileSaved || false); // Check profileSaved flag
+          setProfileSaved(userData.profileSaved || false);
         }
       }
     };
@@ -162,15 +169,14 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
   const handleAddClick = () => {
     if (inputValue.trim()) {
       setSubjects([...subjects, inputValue]);
-      setInputValue("");  // Clear input field after adding subject
+      setInputValue("");
     }
   };
 
   const handleDeleteClick = (index: number) => {
-    setSubjects(subjects.filter((_, i) => i !== index));  // Delete subject at the specified index
+    setSubjects(subjects.filter((_, i) => i !== index));
   };
 
-  // Save profile data to Firestore
   const handleSaveProfile = async () => {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -188,30 +194,30 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
       biography: bio,
       studyPreference: selected,
       groupSize: selectedSize,
-      subjects,  // Include subjects
+      subjects,
       email: currentUser.email,
-      profileImageUrl: profileImage,  // Save the image URL here
-      profileSaved: true, // Set profileSaved as true when the profile is saved
+      profileImageUrl: profileImage,
+      profileSaved: true,
     };
 
     try {
       const userDocRef = doc(db, "users", currentUser.uid);
-      await setDoc(userDocRef, profileData, { merge: true });  // Save data with subjects
+      await setDoc(userDocRef, profileData, { merge: true });
       alert("Profile saved successfully!");
       setProfileSaved(true);
       onClose();
+      refreshUserData(); // Trigger refresh of user data on main page
     } catch (error) {
       console.error("Error saving profile:", error);
       alert("Failed to save profile.");
     }
   };
 
-  // Save blank user profile if "Skip for Now" is clicked
   const handleSkip = async () => {
     if (profileSaved) {
-      // If the profile is already saved, discard changes
       alert("Any unsaved changes will be discarded.");
       onClose();
+      refreshUserData(); // Trigger refresh even on skip to ensure consistency
       return;
     }
 
@@ -225,16 +231,16 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
     }
 
     const profileData = {
-      name: "",  // Empty name
-      major: "",  // Empty major
-      year: "",  // Empty year
-      biography: "",  // Empty bio
-      studyPreference: "",  // Empty study preference
-      groupSize: "",  // Empty group size
-      subjects: [], // Empty subjects
+      name: "",
+      major: "",
+      year: "",
+      biography: "",
+      studyPreference: "",
+      groupSize: "",
+      subjects: [],
       email: currentUser.email,
-      profileImageUrl: profileImage,  // Save the image URL here
-      profileSaved: false, // Set profileSaved as false when skipping
+      profileImageUrl: profileImage,
+      profileSaved: false,
     };
 
     try {
@@ -242,6 +248,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
       await setDoc(userDocRef, profileData, { merge: true });
       alert("Profile saved with blank data.");
       onClose();
+      refreshUserData(); // Trigger refresh of user data on main page
     } catch (error) {
       console.error("Error saving profile:", error);
       alert("Failed to save profile.");
@@ -377,7 +384,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
               if (e.key === "Enter") {
                 e.preventDefault();
                 handleAddClick();
-              }
+            }
             }}
             className="w-full h-[50px] border border-[#6B819B] rounded-[5px] px-3 font-inter text-[20px] leading-[25px] outline-none pr-[85px]"
           />
