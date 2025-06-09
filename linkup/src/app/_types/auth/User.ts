@@ -1,7 +1,7 @@
 export default interface User {
   uuid: String;
-  email: String | null;
-  displayName: String | null;
+  email: String;
+  displayName: String;
   createdAt: Date;
   provider: String;
   profilePicture?: String | null; // Optional field for profile picture URL
@@ -11,4 +11,5 @@ export default interface User {
   noisePreference?: String | null; // Optional field for noise preference (e.g., Silent, Collaborative)
   groupSize?: Number | null; // Optional field for preferred group size
   registeredSessions?: String[]; // Optional field for sessions the user is registered in
+  subjects?: String[];
 }

@@ -12,7 +12,9 @@ import ProtectedRoute from '../../_components/protectedRoute/protectedRoute';
 export default function MyUser() {
   return (
     <ProtectedRoute>
-      <div>profile</div>
+      <div>
+        <Profile />
+      </div>
     </ProtectedRoute>
   );
 }

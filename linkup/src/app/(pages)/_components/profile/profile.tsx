@@ -1,39 +1,101 @@
 'use client';
 import ProfileForm from './profileForm/profileForm';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getFirebaseAuth, getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
+import { doc, getDoc } from 'firebase/firestore';
 import Link from 'next/link';
 
 function MainPage() {
+  const [userData, setUserData] = useState<any>({
+    displayName: 'Anonymous',
+    major: 'Unknown Major',
+    year: 'nth Year',
+    profilePicture: 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg',
+    subjects: [],
+    bio: '',
+    preferredGroupSize: '',
+    noisePreference: '',
+    profileSaved: false,
+  });
+
+  const auth = getFirebaseAuth();
+  const db = getFirebaseDB();
+
+  const fetchUserProfile = async () => {
+    const currentUser = auth.currentUser;
+
+    if (currentUser) {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        console.log('Fetched user data:', userData);
+        setUserData({
+          displayName: userData.displayName || 'Anonymous',
+          major: userData.major || 'Unknown Major',
+          year: userData.year || 'nth Year',
+          profilePicture: userData.profilePicture || 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg',
+          subjects: userData.subjects || [],
+          bio: userData.bio || '',
+          preferredGroupSize: userData.preferredGroupSize || '',
+          noisePreference: userData.noisePreference || '',
+          profileSaved: userData.profileSaved || false,
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
   return (
     <div>
-      <Header />
-      <NameSection />
-      <AboutMe />
-      <StudyInterest />
+      <Header userData={userData} refreshUserData={fetchUserProfile} auth={auth} db={db} />
+      <NameSection userData={userData} />
+      <AboutMe bio={userData.bio} />
+      <StudyInterest
+        subjects={userData.subjects}
+        preferredGroupSize={userData.preferredGroupSize}
+        noisePreference={userData.noisePreference}
+      />
     </div>
   );
 }
 
-function Header() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+function Header({ userData, refreshUserData, auth, db }: { userData: any, refreshUserData: () => void, auth: any, db: any }) {
+  const [isModalOpen, setIsModalOpen] = useState(false); // Default to false
+
+  // Set initial modal state based on profileSaved, only on first load
+  useEffect(() => {
+    const checkProfileSaved = async () => {
+      const currentUser = auth.currentUser;
+
+      if (currentUser) {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          const profileSaved = data.profileSaved || false;
+          setIsModalOpen(!profileSaved); // Open modal only if profileSaved is false
+        }
+      }
+    };
+
+    checkProfileSaved();
+  }, []); // Empty dependency array ensures this runs only on mount
 
   return (
-    <div className="relative h-[324px] w-full max-w-[1700px] mx-auto">
+    <div className="relative h-[252px] w-full max-w-[9999px] mx-auto">
       {/* Blue bar */}
-      <div className="absolute top-[72px] w-full h-[154px] bg-[#002855]"></div> 
-
-      {/* Logo */}
-      <div className="absolute w-[169px] h-[41px] top-[15px] left-[12px]">
-        <img src="logo.svg" alt="logo" className="w-full h-full object-cover" />
-      </div>
+      <div className="absolute top-[0px] w-full h-[154px] bg-[#002855]"></div>
 
       {/* Back to Dashboard button */}
       <Link href="/dashboard">
-        <div
-          className="absolute w-[250px] h-[54px] top-[122px] right-[222px] rounded-[10px]
-          border-2 border-[#F5F5F5] bg-white cursor-pointer hover:bg-gray-100 hover:shadow-md"
-        >
+        <div className="absolute w-[250px] h-[54px] top-[50px] right-[222px] rounded-[10px]
+        border-2 border-[#F5F5F5] bg-white cursor-pointer hover:bg-gray-100 hover:shadow-md">
           <div className="absolute w-[230px] h-[32px] top-[10px] left-[10px]">
             <img src="BacktoDashboard.svg" alt="back to dashboard" className="w-full h-full object-cover" />
           </div>
@@ -43,7 +105,7 @@ function Header() {
       {/* Edit Profile button opens modal */}
       <div
         onClick={() => setIsModalOpen(true)}
-        className="absolute w-[170px] h-[54px] top-[122px] right-[28px] rounded-[10px]
+        className="absolute w-[170px] h-[54px] top-[50px] right-[28px] rounded-[10px]
         border-2 border-white cursor-pointer hover:bg-[#0a3463] hover:shadow-md"
       >
         <div className="absolute w-[149px] h-[32px] top-[10px] left-[10px]">
@@ -52,9 +114,9 @@ function Header() {
       </div>
 
       {/* User's photo */}
-      <div className="absolute top-[146px] left-[61px] w-[172px] h-[172px] rounded-full border-[5px] border-white overflow-hidden">
+      <div className="absolute top-[74px] left-[61px] w-[172px] h-[172px] rounded-full border-[5px] border-white overflow-hidden">
         <img
-          src="https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
+          src={userData.profilePicture}
           alt="head"
           className="w-full h-full object-cover"
         />
@@ -62,12 +124,9 @@ function Header() {
 
       {/* Fullscreen Modal with ProfileForm */}
       {isModalOpen && (
-        <div
-          className="fixed inset-0 flex items-center justify-center z-50
-              backdrop-filter backdrop-blur-md"
-        >
-          <div className="bg-white w-full max-w-[1440px] relative overflow-auto rounded-lg">
-            <ProfileForm onClose={() => setIsModalOpen(false)} />
+        <div className="fixed inset-0 flex z-50 backdrop-filter backdrop-blur-md justify-center">
+          <div className="bg-white w-full max-w-[1440px] relative overflow-auto">
+            <ProfileForm onClose={() => setIsModalOpen(false)} refreshUserData={refreshUserData} />
           </div>
         </div>
       )}
@@ -75,26 +134,26 @@ function Header() {
   );
 }
 
-function NameSection() {
+function NameSection({ userData }: { userData: any }) {
   const [verified, setVerified] = useState(false);
 
   function toggleVerified() {
-    setVerified(!verified);
+    setVerified(!verified); // Fixed: Toggle the verified state correctly
   }
 
   return (
-    <div className="relative mb-10 ml-16 max-w-[1700px] mx-auto">
+    <div className="relative mb-14 ml-16 max-w-[9999px] mx-auto">
       {/* User's name */}
       <p className="relative font-inter font-semibold text-[50px] leading-[35px] mb-3 align-middle tracking-[0px]">
-        User Name
+        {userData.displayName}
       </p>
       {/* User's major */}
       <p className="relative ml-1 font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
-        User's Major
+        {userData.major}
       </p>
       {/* User's year */}
       <p className="relative ml-1 font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
-        nth Year
+        {userData.year}
       </p>
 
       {/* Student verification */}
@@ -119,25 +178,20 @@ function NameSection() {
   );
 }
 
-function AboutMe() {
+function AboutMe({ bio }: { bio: string }) {
   return (
-    <div className="relative mb-8 ml-16 max-w-[1700px] mx-auto">
-      {/* About Me Title */}
-      <div className="relative font-inter font-semibold text-[25px] align-middle ">
+    <div className="relative mb-10 ml-16 max-w-[9999px] mx-auto">
+      <div className="relative font-inter font-semibold text-[25px] align-middle">
         About Me
       </div>
-      {/* Introduction */}
       <div className="relative w-[90%] font-inter font-normal text-[20px] align-middle">
-        I'm a Computer Science major passionate about Web Dev and AI. 
-        I enjoy collaborative studying and helping others understand complex concepts. 
-        Looking for study partners for algorithm analysis and database design courses. 
-        I'm also open to parallel play studying to keep each other accountable!
+        {bio || 'The user has not entered a biography yet.'}  {/* Add fallback if bio is empty */}
       </div>
     </div>
   );
 }
 
-function StudyInterest() {
+function StudyInterest({ subjects, preferredGroupSize, noisePreference }: { subjects: string[], preferredGroupSize: string, noisePreference: string }) {
   return (
     <div className="flex ml-16 mb-24 max-w-[1200px] mx-auto">
       {/* Study Interest */}
@@ -146,25 +200,23 @@ function StudyInterest() {
           Study Interests
         </p>
 
-        {/* Interest bubbles */}
+        {/* Interest bubbles dynamically created from subjects */}
         <div className="flex flex-wrap gap-4">
-          <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
-            <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
-              Algorithms
+          {(subjects && subjects.length > 0) ? (
+            subjects.map((subject, index) => (
+              <div key={index} className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
+                <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
+                  {subject}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
+              <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
+                No subjects added
+              </div>
             </div>
-          </div>
-
-          <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
-            <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
-              Web Developing and 32432432424
-            </div>
-          </div>
-
-          <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
-            <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
-              Large Language Model
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -176,24 +228,37 @@ function StudyInterest() {
         <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-2">
           Study Preferences
         </p>
-        <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle mb-5">
-          Collaborative Style
-        </p>
-        <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle mb-5">
-          Group Preference
-        </p>
+
+        {/* Study Preference */}
+        <div className="flex items-center mb-5">
+          <img src="sound.svg" alt="Study Preference" className="w-[29px] h-[29px] mr-2" />
+          <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle">
+            {noisePreference || 'No study preference specified'}
+          </p>
+        </div>
+
+        {/* Group Size */}
+        <div className="flex items-center mb-5">
+          <img src="groupsize.svg" alt="Group Size" className="w-[29px] h-[29px] mr-2" />
+          <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle">
+            {preferredGroupSize || 'No group size specified'}
+          </p>
+        </div>
+        
       </div>
     </div>
   );
 }
 
+// Make sure that the profile info comes from the user's profile in the database
+// Make sure the styling is consistent with the Figma design
+// Once again this is broken up into too many components, but work with what you have.
 export default function Profile() {
   return (
-    <div className="h-[96vh] w-full bg-gray-100 bg-opacity-30 backdrop-filter backdrop-blur-sm flex justify-center">
-      <div className="relative w-full bg-white max-w-[1700px] mx-auto p-4">
+    <div className="h-[92vh] w-full bg-gray-100 bg-opacity-30 backdrop-filter backdrop-blur-sm flex justify-center">
+      <div className="relative w-full bg-white max-w-[9999px] mx-auto p-4">
         <MainPage />
       </div>
     </div>
-    
   );
 }

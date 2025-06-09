@@ -1,4 +1,6 @@
 import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
+import Link from 'next/link';
+import Profile from '../_components/profile/profile';
 import InfoCard from '../_components/dashboard/infoCard/infoCard';
 import ActivityCard from '../_components/dashboard/activityCard/activityCard';
 import StatCard from '../_components/dashboard/statCard/statCard';
@@ -20,7 +22,13 @@ import SessionPreview from '../_components/session/sessionPreview/sessionPreview
 export default function Dashboard() {
   return (
     <ProtectedRoute>
-      <div>dashboard</div>
+      <div>
+        <Link href="/user">
+          <div className="w-[500px] h-[200px] bg-[#F0F0F0]">
+            click the div  to go to profile
+          </div>
+        </Link>
+      </div>
     </ProtectedRoute>
   );
 }
