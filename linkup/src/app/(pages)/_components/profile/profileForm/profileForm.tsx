@@ -56,7 +56,7 @@ function Leftside({ profileImage, setProfileImage, className }: { profileImage: 
   // This function will prompt the user to enter an image URL
   const handleUploadClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault(); // Prevent any default refresh behavior
-    const url = prompt("Enter the image URL:");
+    const url = prompt("Enter the image URL (Warning: This will refresh your form, so save other changes prior to upload!):");
 
     if (url) {
       // Check if the URL is a valid image URL

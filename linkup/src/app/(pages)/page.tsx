@@ -111,7 +111,8 @@ export default function Home() {
         >
           Sign in with Email
         </button>
-        <div>mingzhetest@test.com            123123</div>
+        <div>mingzhetest@test.com    123123  for account with content</div>
+        <div>mingzheblank@test.com    123123  for mimicing new account, and please don't click save profile</div>
       </div>
     );
   }
