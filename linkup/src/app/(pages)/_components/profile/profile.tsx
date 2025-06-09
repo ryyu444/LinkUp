@@ -15,13 +15,16 @@ function MainPage() {
     biography: '',
     groupSize: '',
     studyPreference: '',
+    profileSaved: false, // Add profileSaved to initial state
   });
+
+  // Initialize Firebase auth and db once in MainPage
+  const auth = getFirebaseAuth();
+  const db = getFirebaseDB();
 
   // Function to fetch user profile data
   const fetchUserProfile = async () => {
-    const auth = getFirebaseAuth();
-    const db = getFirebaseDB();
-    const currentUser = auth.currentUser;
+    const currentUser = auth.currentUser; // Fixed syntax: added '='
 
     if (currentUser) {
       const userDocRef = doc(db, 'users', currentUser.uid);
@@ -39,6 +42,7 @@ function MainPage() {
           biography: userData.biography || '',
           groupSize: userData.groupSize || '',
           studyPreference: userData.studyPreference || '',
+          profileSaved: userData.profileSaved || false, // Fetch profileSaved from database
         });
       }
     }
@@ -50,7 +54,7 @@ function MainPage() {
 
   return (
     <div>
-      <Header userData={userData} refreshUserData={fetchUserProfile} />
+      <Header userData={userData} refreshUserData={fetchUserProfile} auth={auth} db={db} />
       <NameSection userData={userData} />
       <AboutMe bio={userData.biography} />
       <StudyInterest 
@@ -62,8 +66,28 @@ function MainPage() {
   );
 }
 
-function Header({ userData, refreshUserData }: { userData: any, refreshUserData: () => void }) {
-  const [isModalOpen, setIsModalOpen] = useState(false); // Changed to false so modal doesn't open by default
+function Header({ userData, refreshUserData, auth, db }: { userData: any, refreshUserData: () => void, auth: any, db: any }) {
+  const [isModalOpen, setIsModalOpen] = useState(false); // Default to false
+
+  // Set initial modal state based on profileSaved, only on first load
+  useEffect(() => {
+    const checkProfileSaved = async () => {
+      const currentUser = auth.currentUser;
+
+      if (currentUser) {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          const profileSaved = data.profileSaved || false;
+          setIsModalOpen(!profileSaved); // Open modal only if profileSaved is false
+        }
+      }
+    };
+
+    checkProfileSaved();
+  }, []); // Empty dependency array ensures this runs only on mount
 
   return (
     <div className="relative h-[252px] w-full max-w-[9999px] mx-auto">
@@ -116,7 +140,7 @@ function NameSection({ userData }: { userData: any }) {
   const [verified, setVerified] = useState(false);
 
   function toggleVerified() {
-    setVerified(verified);
+    setVerified(!verified); // Fixed: Toggle the verified state correctly
   }
 
   return (
@@ -169,7 +193,6 @@ function AboutMe({ bio }: { bio: string }) {
     </div>
   );
 }
-
 
 function StudyInterest({ subjects, groupSize, studyPreference }: { subjects: string[], groupSize: string, studyPreference: string }) {
   return (
@@ -229,10 +252,6 @@ function StudyInterest({ subjects, groupSize, studyPreference }: { subjects: str
     </div>
   );
 }
-
-
-
-
 
 // Make sure that the profile info comes from the user's profile in the database
 // Make sure the styling is consistent with the Figma design
