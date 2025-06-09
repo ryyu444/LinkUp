@@ -26,20 +26,29 @@ export function AuthContextProvider({ children }: any) {
     accessToken: '0',
   });
 
-  // signup - implement
+  // signup - implement; need to handle invalid logins
   /**
-   * 
+   *
    * @param type Input "Google" or "EmailPassword" to select method type
    * @param method Input "login" or "signup" to select method
    * @param form Form Data with Name, Email, and Password
-   * @returns 
+   * @returns
    */
   const login = async (type: String, method: String, form: FormData) => {
     let user = null;
-    if (type === "Google") {
-      user = await handleGoogleSetup();
-    } else {
-      user = await handleEmailPasswordSetup(method, form);
+    let attempts = 0;
+
+    while (attempts < 3 && !user) {
+      if (type === 'Google') {
+        user = await handleGoogleSetup();
+      } else {
+        user = await handleEmailPasswordSetup(method, form);
+      }
+      attempts++;
+    }
+
+    if (!user) {
+      throw new Error('Login failed after 3 attempts');
     }
 
     setUser(user);

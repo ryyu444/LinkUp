@@ -1,36 +1,37 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { usePathname } from 'next/navigation';
+import { useContext, useState } from 'react';
+import { AuthContext } from '@/app/(pages)/_contexts/AuthContext';
+import { Button } from '@/app/(pages)/_components/ui/button';
+
 /*
-  Render login/signup button only on home page
-  Render small circle with user picture if they are logged in
-    - Clicking on the circle redirects to /user
+  TODO
+   1. Need to render the login and signup buttons only if the user is not logged in
+   2. If the user is logged in, render a profile icon that opens a dropdown menu with profile, my sessions, and logout
+
 */
 export default function Navbar() {
-  const pathname = usePathname();
-  // hide the navbar in login and register page
-  const hide = pathname === '/login' || pathname === '/register';
+  const auth = useContext(AuthContext);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  if (hide) return null;
   return (
-        // space between logo and buttons with padding and bottom border
-        <header className="flex justify-between items-center p-6 border-b">
-        {/* the logo */}
-        <div className="flex items-center space-x-2">
-            <Image src="/logo.png" alt="LinkUp Logo" width={32} height={32} />
-            <span className="text-xl font-bold text-blue-950">LinkUp</span>
-        </div>
-        <div className="space-x-4">
-            {/* create the login and signup button */}
-            <Link href="/login">
-            <Button variant="outline">Login</Button>
-            </Link>
-            <Link href="/register">
-            <Button>Sign Up</Button>
-            </Link>
-        </div>
-        </header>
+    // space between logo and buttons with padding and bottom border
+    <header className='h-[64px] flex justify-between items-center p-6 border-b'>
+      {/* the logo */}
+      <div className='flex items-center space-x-2'>
+        <Image src='/logo.png' alt='LinkUp Logo' width={32} height={32} />
+        <span className='text-xl font-bold text-blue-950'>LinkUp</span>
+      </div>
+      <div className='space-x-4'>
+        {/* create the login and signup button */}
+        <Link href='/login'>
+          <Button variant='outline'>Login</Button>
+        </Link>
+        <Link href='/register'>
+          <Button>Sign Up</Button>
+        </Link>
+      </div>
+    </header>
   );
 }
