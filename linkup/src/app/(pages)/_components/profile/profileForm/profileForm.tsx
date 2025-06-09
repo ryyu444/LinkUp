@@ -128,7 +128,7 @@ function Rightside({ onClose, profileImage, setProfileImage, className }: Profil
 
   const years = ["1st year", "2nd year", "3rd year", "4th year"];
   const options = ["Quiet", "Some Noise", "Collaborative"];
-  const groupSizes = ["1 on 1", "Small (2-4)", "Large (5+)"];
+  const groupSizes = ["1 on 1", "Small Group (2-4)", "Large Group (5+)"];
 
   // Fetch user profile data from Firebase when the component mounts
   useEffect(() => {

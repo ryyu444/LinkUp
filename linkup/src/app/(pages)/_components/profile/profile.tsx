@@ -1,39 +1,80 @@
 'use client';
 import ProfileForm from './profileForm/profileForm';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getFirebaseAuth, getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
+import { doc, getDoc } from 'firebase/firestore';
 import Link from 'next/link';
 
 function MainPage() {
+  const [userData, setUserData] = useState<any>({
+    name: 'Anonymous',
+    major: 'Unknown Major',
+    year: 'nth Year',
+    profileImageUrl: 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg',
+    subjects: [], // Initialize subjects as an empty array
+    biography: '', // Initialize biography as an empty string
+    groupSize: '', // Initialize groupSize as an empty string
+    studyPreference: '', // Initialize studyPreference as an empty string
+  });
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const auth = getFirebaseAuth();
+      const db = getFirebaseDB();
+      const currentUser = auth.currentUser;
+
+      if (currentUser) {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          console.log('Fetched user data:', userData);  // Check the fetched data in console
+          setUserData({
+            name: userData.name || 'Anonymous',
+            major: userData.major || 'Unknown Major',
+            year: userData.year || 'nth Year',
+            profileImageUrl: userData.profileImageUrl || 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg',
+            subjects: userData.subjects || [], // Default to empty array if undefined
+            biography: userData.biography || '', // Default to empty string if undefined
+            groupSize: userData.groupSize || '', // Default to empty string if undefined
+            studyPreference: userData.studyPreference || '', // Default to empty string if undefined
+          });
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
   return (
     <div>
-      <Header />
-      <NameSection />
-      <AboutMe />
-      <StudyInterest />
+      <Header userData={userData} />
+      <NameSection userData={userData} />
+      <AboutMe bio={userData.biography} />
+      <StudyInterest 
+        subjects={userData.subjects} 
+        groupSize={userData.groupSize} 
+        studyPreference={userData.studyPreference} 
+      />
     </div>
   );
 }
 
-function Header() {
+
+
+function Header({ userData }: { userData: any }) {
   const [isModalOpen, setIsModalOpen] = useState(true);
 
   return (
     <div className="relative h-[252px] w-full max-w-[9999px] mx-auto">
       {/* Blue bar */}
-      <div className="absolute top-[0px] w-full h-[154px] bg-[#002855]"></div> 
-
-      {/* Logo 
-      <div className="absolute w-[169px] h-[41px] top-[15px] left-[12px]">
-        <img src="logo.svg" alt="logo" className="w-full h-full object-cover" />
-      </div>*/}
+      <div className="absolute top-[0px] w-full h-[154px] bg-[#002855]"></div>
 
       {/* Back to Dashboard button */}
       <Link href="/dashboard">
-        <div
-          className="absolute w-[250px] h-[54px] top-[50px] right-[222px] rounded-[10px]
-          border-2 border-[#F5F5F5] bg-white cursor-pointer hover:bg-gray-100 hover:shadow-md"
-        >
+        <div className="absolute w-[250px] h-[54px] top-[50px] right-[222px] rounded-[10px]
+        border-2 border-[#F5F5F5] bg-white cursor-pointer hover:bg-gray-100 hover:shadow-md">
           <div className="absolute w-[230px] h-[32px] top-[10px] left-[10px]">
             <img src="BacktoDashboard.svg" alt="back to dashboard" className="w-full h-full object-cover" />
           </div>
@@ -54,18 +95,15 @@ function Header() {
       {/* User's photo */}
       <div className="absolute top-[74px] left-[61px] w-[172px] h-[172px] rounded-full border-[5px] border-white overflow-hidden">
         <img
-          src="https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
+          src={userData.profileImageUrl}
           alt="head"
           className="w-full h-full object-cover"
         />
       </div>
 
-      {/* Fullscreen Modal with ProfileForm "items-center justify-center to put in center" rounded-lg */}
+      {/* Fullscreen Modal with ProfileForm */}
       {isModalOpen && (
-        <div
-          className="fixed inset-0 flex z-50
-              backdrop-filter backdrop-blur-md justify-center"
-        >
+        <div className="fixed inset-0 flex z-50 backdrop-filter backdrop-blur-md justify-center">
           <div className="bg-white w-full max-w-[1440px] relative overflow-auto">
             <ProfileForm onClose={() => setIsModalOpen(false)} />
           </div>
@@ -75,7 +113,7 @@ function Header() {
   );
 }
 
-function NameSection() {
+function NameSection({ userData }: { userData: any }) {
   const [verified, setVerified] = useState(false);
 
   function toggleVerified() {
@@ -86,15 +124,15 @@ function NameSection() {
     <div className="relative mb-14 ml-16 max-w-[9999px] mx-auto">
       {/* User's name */}
       <p className="relative font-inter font-semibold text-[50px] leading-[35px] mb-3 align-middle tracking-[0px]">
-        User Name
+        {userData.name}
       </p>
       {/* User's major */}
       <p className="relative ml-1 font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
-        User's Major
+        {userData.major}
       </p>
       {/* User's year */}
       <p className="relative ml-1 font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle">
-        nth Year
+        {userData.year}
       </p>
 
       {/* Student verification */}
@@ -119,25 +157,22 @@ function NameSection() {
   );
 }
 
-function AboutMe() {
+function AboutMe({ bio }: { bio: string }) {
+  console.log('Biography:', bio); // Check if bio is being passed correctly
   return (
     <div className="relative mb-10 ml-16 max-w-[9999px] mx-auto">
-      {/* About Me Title */}
-      <div className="relative font-inter font-semibold text-[25px] align-middle ">
+      <div className="relative font-inter font-semibold text-[25px] align-middle">
         About Me
       </div>
-      {/* Introduction */}
       <div className="relative w-[90%] font-inter font-normal text-[20px] align-middle">
-        I'm a Computer Science major passionate about Web Dev and AI. 
-        I enjoy collaborative studying and helping others understand complex concepts. 
-        Looking for study partners for algorithm analysis and database design courses. 
-        I'm also open to parallel play studying to keep each other accountable!
+        {bio || 'The user has not entered a biography yet.'}  {/* Add fallback if bio is empty */}
       </div>
     </div>
   );
 }
 
-function StudyInterest() {
+
+function StudyInterest({ subjects, groupSize, studyPreference }: { subjects: string[], groupSize: string, studyPreference: string }) {
   return (
     <div className="flex ml-16 mb-24 max-w-[1200px] mx-auto">
       {/* Study Interest */}
@@ -146,25 +181,23 @@ function StudyInterest() {
           Study Interests
         </p>
 
-        {/* Interest bubbles */}
+        {/* Interest bubbles dynamically created from subjects */}
         <div className="flex flex-wrap gap-4">
-          <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
-            <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
-              Algorithms
+          {(subjects && subjects.length > 0) ? (
+            subjects.map((subject, index) => (
+              <div key={index} className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
+                <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
+                  {subject}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
+              <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
+                No subjects added
+              </div>
             </div>
-          </div>
-
-          <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
-            <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
-              Web Developing and 32432432424
-            </div>
-          </div>
-
-          <div className="w-max px-3 py-0.5 rounded-[20px] border border-[#6B819B]">
-            <div className="font-inter font-semibold text-[20px] leading-[25px] tracking-[0px] text-center align-middle text-[#002855]">
-              Large Language Model
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -176,20 +209,35 @@ function StudyInterest() {
         <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-2">
           Study Preferences
         </p>
-        <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle mb-5">
-          Collaborative Style
-        </p>
-        <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle mb-5">
-          Group Preference
-        </p>
+
+        {/* Replace text "Study Preference" with the sound image */}
+        <div className="flex items-center mb-5">
+          <img src="sound.svg" alt="Study Preference" className="w-[29px] h-[29px] mr-2" />
+          <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle">
+            {studyPreference || 'No study preference specified'}
+          </p>
+        </div>
+
+        {/* Replace text "Group Size" with the group size image */}
+        <div className="flex items-center mb-5">
+          <img src="groupsize.svg" alt="Group Size" className="w-[29px] h-[29px] mr-2" />
+          <p className="font-inter font-normal text-[20px] leading-[20px] tracking-[0px] align-middle">
+            {groupSize || 'No group size preference specified'}
+          </p>
+        </div>
+        
       </div>
     </div>
   );
 }
 
-// make sure that the profile info comes from the user's profile in the database
-// make sure the styling is consistent with the Figma design
-// once again this is broken up into too many components, but work with what you have.
+
+
+
+
+// Make sure that the profile info comes from the user's profile in the database
+// Make sure the styling is consistent with the Figma design
+// Once again this is broken up into too many components, but work with what you have.
 export default function Profile() {
   return (
     <div className="h-[96vh] w-full bg-gray-100 bg-opacity-30 backdrop-filter backdrop-blur-sm flex justify-center">
@@ -197,6 +245,5 @@ export default function Profile() {
         <MainPage />
       </div>
     </div>
-    
   );
 }
