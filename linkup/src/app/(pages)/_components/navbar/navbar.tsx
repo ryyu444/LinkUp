@@ -99,7 +99,7 @@ export default function Navbar() {
                   // it already redirect to login when you click logout
                   //router.push('/login');
                 }}
-                className='w-full text-left text-red-600 font-semibold hover:bg-gray-100 px-2 py-1 rounded'
+                className='w-full text-right text-red-600 font-semibold hover:bg-gray-100 px-2 py-1 rounded'
               >
                 Logout
               </button>
