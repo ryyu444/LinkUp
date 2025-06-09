@@ -1,7 +1,6 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { getFirebaseAuth, getFirebaseDB } from "@/(api)/_lib/firebase/firebaseClient";
 import { doc, setDoc } from "firebase/firestore";
-import { useEffect,} from "react";
 
 interface ProfileFormProps {
   onClose: () => void;
@@ -10,15 +9,26 @@ interface ProfileFormProps {
 interface MainPageProps {
   onClose: () => void;
   className?: string;
+  profileImage: string;
+  setProfileImage: React.Dispatch<React.SetStateAction<string>>;
 }
 
-function Logo() {
+function ProfileForm({ onClose }: ProfileFormProps) {
+  const [profileImage, setProfileImage] = useState(
+    "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
+  );
+
   return (
-    <div className="absolute top-0 left-0 w-[169px] h-[41px] z-10 m-4">
-      <img src="logo.svg" alt="logo" className="w-full h-full object-cover" />
+    <div className="relative w-full h-full top-0 left-0 bg-white flex flex-col items-center">
+      <div className="relative w-full max-w-[1440px] h-full px-4">
+        <Header />
+        <MainPage onClose={onClose} profileImage={profileImage} setProfileImage={setProfileImage} />
+      </div>
     </div>
   );
 }
+
+export default ProfileForm;
 
 function Header() {
   return (
@@ -33,23 +43,16 @@ function Header() {
   );
 }
 
-function MainPage({ onClose, className }: MainPageProps) {
+function MainPage({ onClose, profileImage, setProfileImage, className }: MainPageProps) {
   return (
-    <div
-      className={`relative flex w-full h-full max-w-[1330px] mx-auto px-4 pt-[20px] ${className || ""}`}
-      style={{ paddingTop: "20px" }} // to prevent overlap with logo and header
-    >
-      <Leftside className="w-[30%]" />
-      <Rightside onClose={onClose} className="w-[70%] ml-4" />
+    <div className={`relative flex w-full h-full max-w-[1330px] mx-auto px-4 pt-[20px] ${className || ""}`} style={{ paddingTop: "20px" }}>
+      <Leftside profileImage={profileImage} setProfileImage={setProfileImage} className="w-[30%]" />
+      <Rightside onClose={onClose} profileImage={profileImage} setProfileImage={setProfileImage} className="w-[70%] ml-4" />
     </div>
   );
 }
 
-function Leftside({ className }: { className?: string }) {
-  const [profileImage, setProfileImage] = useState(
-    "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
-  );
-
+function Leftside({ profileImage, setProfileImage, className }: { profileImage: string, setProfileImage: React.Dispatch<React.SetStateAction<string>>, className?: string }) {
   // This function will prompt the user to enter an image URL
   const handleUploadClick = () => {
     const url = prompt("Enter the image URL:");
@@ -57,7 +60,7 @@ function Leftside({ className }: { className?: string }) {
     if (url) {
       // Check if the URL is a valid image URL
       const img = new Image();
-      img.onload = () => setProfileImage(url);
+      img.onload = () => setProfileImage(url); // Update profileImage state globally
       img.onerror = () => alert("Invalid URL. Please try again with a valid image URL.");
       img.src = url;
     }
@@ -82,8 +85,7 @@ function Leftside({ className }: { className?: string }) {
   );
 }
 
-
-function Rightside({ onClose, className }: ProfileFormProps & { className?: string }) {
+function Rightside({ onClose, profileImage, setProfileImage, className }: ProfileFormProps & { className?: string, profileImage: string, setProfileImage: React.Dispatch<React.SetStateAction<string>> }) {
   const [name, setName] = useState("");
   const [major, setMajor] = useState("");
   const [bio, setBio] = useState("");
@@ -91,7 +93,7 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
   const [selected, setSelected] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
-  const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<string[]>([]); // subjects array to store user's subjects
 
   const years = ["1st year", "2nd year", "3rd year", "4th year"];
   const options = ["Quiet", "Some Noise", "Collaborative"];
@@ -100,12 +102,12 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
   const handleAddClick = () => {
     if (inputValue.trim()) {
       setSubjects([...subjects, inputValue]);
-      setInputValue("");
+      setInputValue("");  // Clear input field after adding subject
     }
   };
 
   const handleDeleteClick = (index: number) => {
-    setSubjects(subjects.filter((_, i) => i !== index));
+    setSubjects(subjects.filter((_, i) => i !== index));  // Delete subject at the specified index
   };
 
   const handleSaveProfile = async () => {
@@ -125,13 +127,14 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
       biography: bio,
       studyPreference: selected,
       groupSize: selectedSize,
-      subjects,
+      subjects,  // Include subjects
       email: currentUser.email,
+      profileImageUrl: profileImage,  // Save the image URL here
     };
 
     try {
       const userDocRef = doc(db, "users", currentUser.uid);
-      await setDoc(userDocRef, profileData, { merge: true });
+      await setDoc(userDocRef, profileData, { merge: true });  // Save data with subjects
       alert("Profile saved successfully!");
       onClose();
     } catch (error) {
@@ -142,6 +145,7 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
 
   return (
     <div className={`${className} h-full`}>
+      {/* Full Name Section */}
       <div className="relative w-full max-w-[770px]">
         <p className="font-inter font-semibold text-[20px] leading-[25px] text-[#002855] mb-1">
           Full Name
@@ -155,6 +159,7 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
         />
       </div>
 
+      {/* Major and Year */}
       <div className="relative flex w-full max-w-[770px] gap-4">
         <div className="w-3/5">
           <p className="font-inter font-semibold text-[20px] leading-[25px] text-[#002855] mb-1">
@@ -190,6 +195,7 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
         </div>
       </div>
 
+      {/* Biography Section */}
       <div className="relative w-full max-w-[770px]">
         <p className="font-inter font-semibold text-[20px] leading-[25px] text-[#002855] mb-1">
           About Yourself
@@ -198,10 +204,11 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
           placeholder="Enter Your Biography Here"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[20px] leading-[25px] outline-none w-full min-h-[120px] resize-none mb-[60px]"
+          className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[20px] leading-[25px] outline-none w-full min-h-[120px] resize-none mb-[40px]"
         />
       </div>
 
+      {/* Study Preferences */}
       <div className="relative flex w-full max-w-[770px] gap-4">
         <div className="w-2/5">
           <p className="font-inter font-semibold text-[20px] leading-[25px] mb-2 text-[#002855]">
@@ -213,11 +220,7 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
                 key={option}
                 onClick={() => setSelected(option)}
                 className={`w-max px-5 py-0.5 rounded-[20px] border font-inter font-semibold text-[20px] leading-[25px]
-                  ${
-                    selected === option
-                      ? "bg-[#FFD100] border-[#6B819B]"
-                      : "border-[#6B819B] text-[#002855] bg-transparent"
-                  }`}
+                  ${selected === option ? "bg-[#FFD100] border-[#6B819B]" : "border-[#6B819B] text-[#002855] bg-transparent"}`}
               >
                 {option}
               </button>
@@ -237,11 +240,7 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
                 key={size}
                 onClick={() => setSelectedSize(size)}
                 className={`w-max px-3 py-0.5 rounded-[20px] border font-inter font-semibold text-[20px] leading-[25px]
-                  ${
-                    selectedSize === size
-                      ? "bg-[#FFD100] border-[#6B819B]"
-                      : "border-[#6B819B] text-[#002855] bg-transparent"
-                  }`}
+                  ${selectedSize === size ? "bg-[#FFD100] border-[#6B819B]" : "border-[#6B819B] text-[#002855] bg-transparent"}`}
               >
                 {size}
               </button>
@@ -250,16 +249,14 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
         </div>
       </div>
 
+      {/* Subjects I'm Studying */}
       <div className="relative w-full max-w-[770px] mt-[30px]">
         <p className="font-inter font-semibold text-[20px] leading-[25px] mb-2 text-[#002855]">
           Subjects I'm Studying
         </p>
         <div className="flex flex-wrap gap-x-3">
           {subjects.map((subject, index) => (
-            <div
-              key={index}
-              className="w-max px-4 py-0.5 rounded-[20px] border bg-[#002855] flex items-center mb-2"
-            >
+            <div key={index} className="w-max px-4 py-0.5 rounded-[20px] border bg-[#002855] flex items-center mb-2">
               <div className="font-inter font-semibold text-[20px] leading-[25px] text-white text-center align-middle">
                 {subject}
               </div>
@@ -297,6 +294,7 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
         </div>
       </div>
 
+      {/* Save Profile Button */}
       <div className="relative w-full max-w-[770px] mt-[60px] flex justify-end gap-2">
         <button
           onClick={onClose}
@@ -313,20 +311,6 @@ function Rightside({ onClose, className }: ProfileFormProps & { className?: stri
       </div>
 
       <div className="h-[18px]" />
-    </div>
-  );
-}
-
-// Too much is being split into components, but work with what you have.
-// Can remove the header + logo since we have navbar
-// make sure that the save function actually saves the profile data
-export default function ProfileForm({ onClose }: ProfileFormProps) {
-  return (
-    <div className="relative w-full h-full top-0 left-0 bg-white flex flex-col items-center">
-      <div className="relative w-full max-w-[1440px] h-full px-4">
-        <Header />
-        <MainPage onClose={onClose} />
-      </div>
     </div>
   );
 }

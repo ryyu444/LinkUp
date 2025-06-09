@@ -111,7 +111,7 @@ export default function Home() {
         >
           Sign in with Email
         </button>
-        <div>username is mingzhetest@test.com, and password is 123123</div>
+        <div>mingzhetest@test.com            123123</div>
       </div>
     );
   }
