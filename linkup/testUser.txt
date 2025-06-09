@@ -1,0 +1,4 @@
+User:
+    uid: '45T1ZjizSMY3p02T9fWRzF5ekTE3', email: 'test1234@gmail.com', password: 'test1234'
+    uid: 'Br7Jmv8kDUaOOyHHUFs3Fb88Fx12', email: 'test@example.com', password: 'abc123'
+    uid: 'pZTl8YZbwiNmewfApsp7Ihi3EQW2', email: '12345@gmail.com', password: 'abc12345'
