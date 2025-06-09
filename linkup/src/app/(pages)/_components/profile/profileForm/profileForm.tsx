@@ -49,23 +49,18 @@ function Leftside({ className }: { className?: string }) {
   const [profileImage, setProfileImage] = useState(
     "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
   );
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setProfileImage(e.target.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
+  // This function will prompt the user to enter an image URL
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    const url = prompt("Enter the image URL:");
+
+    if (url) {
+      // Check if the URL is a valid image URL
+      const img = new Image();
+      img.onload = () => setProfileImage(url);
+      img.onerror = () => alert("Invalid URL. Please try again with a valid image URL.");
+      img.src = url;
+    }
   };
 
   return (
@@ -73,14 +68,6 @@ function Leftside({ className }: { className?: string }) {
       <div className="w-full max-w-[360px] aspect-square rounded-full overflow-hidden border-[1px] border-[#002855] mb-4">
         <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
       </div>
-
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        onChange={handleImageChange}
-        className="hidden"
-      />
 
       <button
         onClick={handleUploadClick}
@@ -94,6 +81,7 @@ function Leftside({ className }: { className?: string }) {
     </div>
   );
 }
+
 
 function Rightside({ onClose, className }: ProfileFormProps & { className?: string }) {
   const [name, setName] = useState("");
