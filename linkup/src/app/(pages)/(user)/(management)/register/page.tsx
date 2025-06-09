@@ -76,7 +76,7 @@ export default function Register() {
   };
 
   return (
-    <>
+    <div className="flex flex-col w-1/2">
       {/* the right part */}
       {/* Heading */}
       <h2 className="text-2xl font-bold text-blue-900 mb-1">Create your account</h2>
@@ -169,6 +169,6 @@ export default function Register() {
           </div>
         </div>
       )} */}
-    </>
+    </div>
   );
 }
