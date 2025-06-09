@@ -11,4 +11,5 @@ export default interface User {
   noisePreference?: String | null; // Optional field for noise preference (e.g., Silent, Collaborative)
   groupSize?: Number | null; // Optional field for preferred group size
   registeredSessions?: String[]; // Optional field for sessions the user is registered in
+  subjects?: String[]; // Optional field for subjects the user is interested in
 }

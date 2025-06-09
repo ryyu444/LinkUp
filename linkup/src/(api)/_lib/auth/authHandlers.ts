@@ -42,6 +42,8 @@ export async function handleGoogleSetup(): Promise<void> {
           displayName: firebaseUser.displayName || 'Unnamed',
           createdAt: new Date(),
           provider: 'google',
+          registeredSessions: [],
+          subjects: [],
         };
         await setDoc(userRef, userEntry);
       }
@@ -103,6 +105,8 @@ export async function handleEmailPasswordSetup(
           displayName: email.split('@')[0], // use email prefix as display name
           createdAt: new Date(),
           provider: 'email',
+          registeredSessions: [],
+          subjects: [],
         };
         await setDoc(userRef, userEntry);
       }

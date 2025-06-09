@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useEffect, createContext } from 'react';
-import { getFirebaseAuth } from '@/(api)/_lib/firebase/firebaseClient';
+import {
+  getFirebaseAuth,
+  getFirebaseDB,
+} from '@/(api)/_lib/firebase/firebaseClient';
+import { collection, getDocs } from 'firebase/firestore';
 import {
   handleGoogleSetup,
   handleEmailPasswordSetup,
@@ -33,15 +37,25 @@ export function AuthContextProvider({ children }: any) {
   const auth = getFirebaseAuth();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
-        const userData: User = {
-          uuid: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          displayName: firebaseUser.displayName || 'Unnamed',
-          createdAt: new Date(),
-          provider: firebaseUser.providerData[0]?.providerId || 'unknown',
-        };
+        const db = getFirebaseDB();
+        const usersCol = collection(db, 'users');
+        const usersSnapshot = await getDocs(usersCol);
+        const userData = usersSnapshot.docs
+          .map((doc) => doc.data() as User)
+          .find((user) => user.uuid === firebaseUser.uid);
+
+        if (!userData) {
+          console.error(
+            'User data not found in Firestore for UID:',
+            firebaseUser.uid
+          );
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+
         setUser(userData);
       } else {
         setUser(null);
