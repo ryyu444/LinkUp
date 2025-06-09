@@ -1,53 +1,86 @@
 'use client';
 
-import { useState, createContext } from 'react';
+import { useState, useEffect, createContext } from 'react';
+import { getFirebaseAuth } from '@/(api)/_lib/firebase/firebaseClient';
 import {
   handleGoogleSetup,
   handleEmailPasswordSetup,
 } from '@/(api)/_lib/auth/authHandlers';
 import User from '@/app/_types/auth/User';
 
-export const AuthContext = createContext({});
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (
+    type: 'Google' | 'EmailPassword',
+    method: 'login' | 'signup',
+    form: FormData
+  ) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+export const AuthContext = createContext<AuthContextType>(
+  {} as AuthContextType
+);
 
 /**
  *
  * @returns Auth Context Provider used to track current user info for handling login/logout and specific rendering
  */
 export function AuthContextProvider({ children }: any) {
-  const [user, setUser] = useState<User | null>({
-    username: 'john',
-    password: 'smith',
-    accessToken: '0',
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const auth = getFirebaseAuth();
 
-  // signup - implement
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) {
+        const userData: User = {
+          uuid: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          displayName: firebaseUser.displayName || 'Unnamed',
+          createdAt: new Date(),
+          provider: firebaseUser.providerData[0]?.providerId || 'unknown',
+        };
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  console.log('AuthContextProvider');
+  console.log('Current User:', user);
+  // signup - implement; need to handle invalid logins
   /**
-   * 
+   *
    * @param type Input "Google" or "EmailPassword" to select method type
    * @param method Input "login" or "signup" to select method
    * @param form Form Data with Name, Email, and Password
-   * @returns 
+   * @returns
    */
   const login = async (type: String, method: String, form: FormData) => {
-    let user = null;
-    if (type === "Google") {
-      user = await handleGoogleSetup();
-    } else {
-      user = await handleEmailPasswordSetup(method, form);
+    try {
+      if (type === 'Google') {
+        await handleGoogleSetup();
+      } else {
+        await handleEmailPasswordSetup(method, form);
+      }
+    } catch (error: any) {
+      console.error('Login Error:', error);
+      throw new Error(error.message || 'Login failed');
     }
-
-    setUser(user);
-    return;
   };
 
   // logout
   const logout = async () => {
-    setUser(null);
-    return;
+    await auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

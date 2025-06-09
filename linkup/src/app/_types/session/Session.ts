@@ -1,9 +1,9 @@
-import { GeoPoint, Timestamp } from 'firebase/firestore';
 import User from '../auth/User';
 import Tag from './Tag';
 
 // can add more fields
 export default interface Session {
+  sessionID: String; // unique session ids
   title: String;
   description: String;
   day: String,
@@ -12,6 +12,6 @@ export default interface Session {
   location: String;
   noise: Number, // maybe map 0->3 to Silent->Collaborative
   capacity: Number;
-  registered: User[];
+  registered: String[]; // array of user UUIDS
   tags: Tag[]; // additional preferences, etc
 }
