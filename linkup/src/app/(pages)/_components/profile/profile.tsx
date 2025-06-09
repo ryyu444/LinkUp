@@ -116,7 +116,7 @@ function NameSection({ userData }: { userData: any }) {
   const [verified, setVerified] = useState(false);
 
   function toggleVerified() {
-    setVerified(!verified);
+    setVerified(verified);
   }
 
   return (
