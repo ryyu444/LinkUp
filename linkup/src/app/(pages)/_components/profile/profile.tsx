@@ -21,6 +21,20 @@ function MainPage() {
   const auth = getFirebaseAuth();
   const db = getFirebaseDB();
 
+  function convertGroupSizeToString(value: number): string {
+    switch (value) {
+      case 2:
+        return "1 on 1 (2 People)";
+      case 4:
+        return "Small Groups (2-4 People)";
+      case 8:
+        return "Large Groups (5+ People)";
+      default:
+        return "";
+    }
+  }
+
+
   const fetchUserProfile = async () => {
     const currentUser = auth.currentUser;
 
@@ -38,7 +52,7 @@ function MainPage() {
           profilePicture: userData.profilePicture || 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg',
           subjects: userData.subjects || [],
           bio: userData.bio || '',
-          preferredGroupSize: userData.preferredGroupSize || '',
+          preferredGroupSize: convertGroupSizeToString(userData.preferredGroupSize),
           noisePreference: userData.noisePreference || '',
           profileSaved: userData.profileSaved || false,
         });

@@ -147,7 +147,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
   const [bio, setBio] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selected, setSelected] = useState<string>("");
-  const [selectedSize, setSelectedSize] = useState<string>("");
+  const [selectedSize, setSelectedSize] = useState<number>(0);
   const [inputValue, setInputValue] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
   const [profileSaved, setProfileSaved] = useState(false);
@@ -155,7 +155,12 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
   // Predefined options for dropdowns and buttons
   const years = ["1st year", "2nd year", "3rd year", "4th year"];
   const options = ["Quiet", "Some Noise", "Collaborative"];
-  const preferredGroupSizes = ["1 on 1", "Small Group (2-4)", "Large Group (5+)"];
+  const preferredGroupSizes = [
+    { label: "1 on 1", value: 2 },
+    { label: "Small (2-4)", value: 4 },
+    { label: "Large (5+)", value: 8 },
+  ];
+
 
   // Effect to fetch existing profile data from Firebase
   useEffect(() => {
@@ -176,7 +181,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
           setBio(userData.bio || "");
           setSubjects(userData.subjects || []);
           setSelected(userData.noisePreference || "");
-          setSelectedSize(userData.preferredGroupSize || "");
+          setSelectedSize(userData.preferredGroupSize || 0);
           setprofilePictureUrl(userData.profilePicture || profilePictureUrl);
           setProfileSaved(userData.profileSaved || false);
         }
@@ -198,6 +203,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
   const handleDeleteClick = (index: number) => {
     setSubjects(subjects.filter((_, i) => i !== index));
   };
+
 
   // Function to save profile data to Firebase
   const handleSaveProfile = async () => {
@@ -260,7 +266,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
       year: "",
       bio: "",
       noisePreference: "",
-      preferredGroupSize: "",
+      preferredGroupSize: 0,
       subjects: [],
       email: currentUser.email,
       profilePicture: profilePictureUrl,
@@ -369,18 +375,19 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
             Preferred Group Size
           </p>
           <div className="flex flex-wrap gap-2">
-            {preferredGroupSizes.map((size) => (
+            {preferredGroupSizes.map(({ label, value }) => (
               <button
-                key={size}
-                onClick={() => setSelectedSize(size)}
+                key={value}
+                onClick={() => setSelectedSize(value)}
                 className={`w-max px-3 py-0.5 rounded-[20px] border font-inter font-semibold text-[20px] leading-[25px]
-                  ${selectedSize === size ? "bg-[#FFD100] border-[#6B819B]" : "border-[#6B819B] text-[#002855] bg-transparent"}`}
+                  ${selectedSize === value ? "bg-[#FFD100] border-[#6B819B]" : "border-[#6B819B] text-[#002855] bg-transparent"}`}
               >
-                {size}
+              {label}
               </button>
             ))}
           </div>
         </div>
+
       </div>
 
       {/* Subjects I'm Studying Section */}
