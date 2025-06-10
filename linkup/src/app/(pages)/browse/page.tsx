@@ -43,7 +43,7 @@ export default function Browse() {
         const q = query(collection(db, 'sessions'), orderBy('date'));
         const snapshot = await getDocs(q);
         const sessionList = snapshot.docs.map((doc) => ({
-          id: doc.id,
+          sessionID: doc.id,
           ...doc.data(),
         })) as Session[];
 
@@ -66,6 +66,7 @@ export default function Browse() {
     fetchSessions();
   }, [user]);
 
+  // need to fix filters to work with Session type
   const filteredSessions = sessions.filter((session) => {
     const matchesSubject =
       subjectFilter === '' ||
@@ -83,17 +84,17 @@ export default function Browse() {
 
     const matchesGroupSize =
       groupSizeFilter === '' ||
-      `${session.attendees?.length ?? 0}/${session.maxSize ?? '-'}`.includes(
+      `${session.registered?.length ?? 0}/${session.capacity ?? '-'}`.includes(
         groupSizeFilter
       );
 
     const matchesDate =
       dateFilter === '' ||
-      session.date.toDate().toLocaleDateString().includes(dateFilter);
+      session.day.toDate().toLocaleDateString().includes(dateFilter);
 
     const matchesTime =
       timeFilter === '' ||
-      session.time.toLowerCase().includes(timeFilter.toLowerCase());
+      session.startTime.toLowerCase().includes(timeFilter.toLowerCase());
 
     return (
       matchesSubject &&
