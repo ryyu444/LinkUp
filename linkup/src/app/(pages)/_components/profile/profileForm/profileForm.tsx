@@ -200,31 +200,48 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
       return;
     }
 
+    // Check for required fields
+    const isValidProfile =
+      displayName.trim() !== "" &&
+      major.trim() !== "" &&
+      selectedYear.trim() !== "" &&
+      bio.trim() !== "" &&
+      selected.trim() !== "" &&
+      selectedSize !== 0 &&
+      subjects.length > 0;
+
     const profileData = {
       displayName,
       major,
       year: selectedYear,
-      bio: bio,
+      bio,
       noisePreference: selected,
       preferredGroupSize: selectedSize,
       subjects,
       email: currentUser.email,
       profilePicture: profilePictureUrl,
-      profileSaved: true,
+      profileSaved: isValidProfile,
     };
 
     try {
       const userDocRef = doc(db, "users", currentUser.uid);
       await setDoc(userDocRef, profileData, { merge: true });
-      alert("Profile saved successfully!");
-      setProfileSaved(true);
+
+      if (isValidProfile) {
+        alert("Profile saved successfully!");
+      } else {
+        alert("Some fields are missing. Profile saved but marked as incomplete.");
+      }
+
+      setProfileSaved(isValidProfile);
       onClose();
-      refreshUserData(); // Trigger refresh of user data on main page
+      refreshUserData();
     } catch (error) {
       console.error("Error saving profile:", error);
       alert("Failed to save profile.");
     }
   };
+
 
   // Handler for skipping profile edits with blank data
   const handleSkip = async () => {

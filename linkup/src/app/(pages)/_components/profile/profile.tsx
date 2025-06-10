@@ -207,7 +207,7 @@ function AboutMe({ bio }: { bio: string }) {
 
 function StudyInterest({ subjects, preferredGroupSize, noisePreference }: { subjects: string[], preferredGroupSize: string, noisePreference: string }) {
   return (
-    <div className="flex ml-16 mb-24 max-w-[1200px] mx-auto">
+    <div className="flex ml-16 mb-24 max-w-[1400px] mx-auto">
       {/* Study Interest */}
       <div className="w-[45%]">
         <p className="font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-1">
