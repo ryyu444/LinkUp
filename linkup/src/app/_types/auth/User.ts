@@ -9,7 +9,8 @@ export default interface User {
   major?: String | null; // Optional field for user major
   year?: String | null; // Optional field for user year (e.g., Freshman, Sophomore)
   noisePreference?: String | null; // Optional field for noise preference (e.g., Silent, Collaborative)
-  groupSize?: Number | null; // Optional field for preferred group size
+  groupSize?: number; // Optional field for preferred group size
   registeredSessions?: String[]; // Optional field for sessions the user is registered in
   subjects?: String[];
+  profileSaved: boolean;
 }
