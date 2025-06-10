@@ -256,28 +256,10 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
       return;
     }
 
-    const profileData = {
-      displayName: "",
-      major: "",
-      year: "",
-      bio: "",
-      noisePreference: "",
-      groupSize: 0,
-      subjects: [],
-      email: currentUser.email,
-      profilePicture: profilePictureUrl,
-      profileCompleted: false,
-    };
+    onClose();
+    refreshUserData();
 
-    try {
-      const userDocRef = doc(db, "users", currentUser.uid);
-      await setDoc(userDocRef, profileData, { merge: true });
-      onClose();
-      refreshUserData();
-    } catch (error) {
-      console.error("Error saving profile:", error);
-      alert("Failed to save profile.");
-    }
+    
   };
 
   return (
