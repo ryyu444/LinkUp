@@ -40,14 +40,8 @@ export default function SessionPopup({
   };
 
   return (
-<<<<<<< HEAD
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-opacity-5"
-      onClick={onClose}
-=======
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-opacity-5"
     onClick={onClose}
->>>>>>> ac7f324e6da21dc63a1db3f6b6bf99ee8c3091cf
     >
       <div
         className="w-[750px] h-[750px] bg-white rounded-[20px] outline outline-[3px] outline-offset-[-3px] outline-gray-200 overflow-hidden relative flex flex-col"
