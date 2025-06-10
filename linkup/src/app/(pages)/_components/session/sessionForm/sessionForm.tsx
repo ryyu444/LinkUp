@@ -18,7 +18,7 @@ export default function SessionForm({
   onSubmit,
   onDelete,
   // true for edit, false for create
-  isEditing = false,
+  isEditing = true,
 }: SessionFormProps) {
   // Set up internal state for the form fields
   const [form, setForm] = useState({

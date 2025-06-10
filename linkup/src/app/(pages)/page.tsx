@@ -6,6 +6,7 @@ import { AuthContext } from './_contexts/AuthContext';
 import Example from './_components/example/example';
 import User from '../_types/auth/User';
 import Image from 'next/image';
+import { Session } from 'inspector/promises';
 
 async function testDB() {
   const db = getFirebaseDB();
