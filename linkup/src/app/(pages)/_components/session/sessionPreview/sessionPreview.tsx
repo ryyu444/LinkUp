@@ -1,21 +1,13 @@
 "use client";
 
+import Session from "@/app/_types/session/Session";
 import { Timestamp } from 'firebase/firestore';
 
-interface Session {
-  id: string;
-  title: string;
-  location: string;
-  time: string;
-  date: Timestamp; // correct type
-  createdBy: string;
-  attendees?: string[];
-}
-
 export default function SessionPreview({ session }: { session: Session }) {
-  const { title, time, date, location, attendees = [] } = session;
-  const displayAttendees = attendees.slice(0, 3);
-  const remaining = attendees.length - displayAttendees.length;
+  const { title, startTime, endTime, location, capacity, registered } = session;
+
+  const displayAttendees = registered.slice(0, 3);
+  const remaining = registered.length - displayAttendees.length;
 
   return (
     <div className="w-full h-24 bg-white rounded-lg shadow-[0_1px_2px_0_rgba(0,0,0,0.06)] shadow-[0_1px_3px_0_rgba(0,0,0,0.10)] outline outline-1 outline-offset-[-1px] outline-gray-200 px-6 py-4 flex items-center justify-between font-['Inter']">
@@ -30,18 +22,19 @@ export default function SessionPreview({ session }: { session: Session }) {
           {title}
         </p>
         <p className="text-gray-600 text-sm font-normal leading-normal truncate">
-          {date.toDate().toDateString()}, {time} • {location}
+          {startTime.toLocaleDateString()}, {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -{' '}
+          {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {location}
         </p>
       </div>
 
       {/* Right: Avatars */}
       <div className="flex items-center gap-2 ml-4">
-        {displayAttendees.map((label, i) => (
+        {displayAttendees.map((uuid, i) => (
           <div
             key={i}
             className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border-2 border-white text-gray-700 text-xs font-normal leading-none"
           >
-            {label}
+            {uuid.charAt(0)}
           </div>
         ))}
         {remaining > 0 && (
