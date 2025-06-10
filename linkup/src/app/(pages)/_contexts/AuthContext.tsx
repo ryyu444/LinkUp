@@ -41,6 +41,7 @@ export function AuthContextProvider({ children }: any) {
           displayName: firebaseUser.displayName || 'Unnamed',
           createdAt: new Date(),
           provider: firebaseUser.providerData[0]?.providerId || 'unknown',
+          profileSaved: true,
         };
         setUser(userData);
       } else {
