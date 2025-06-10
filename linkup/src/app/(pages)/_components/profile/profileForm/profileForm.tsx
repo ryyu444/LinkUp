@@ -277,7 +277,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
     try {
       const userDocRef = doc(db, "users", currentUser.uid);
       await setDoc(userDocRef, profileData, { merge: true });
-      alert("Profile saved with blank data.");
+      alert("Your profile is empty!");
       onClose();
       refreshUserData();
     } catch (error) {
