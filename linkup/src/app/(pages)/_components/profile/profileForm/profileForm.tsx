@@ -227,11 +227,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
       const userDocRef = doc(db, "users", currentUser.uid);
       await setDoc(userDocRef, profileData, { merge: true });
 
-      if (isValidProfile) {
-        alert("Profile saved successfully!");
-      } else {
-        alert("Some fields are missing. Profile saved but marked as incomplete.");
-      }
+      
 
       setProfileSaved(isValidProfile);
       onClose();
@@ -246,7 +242,6 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
   // Handler for skipping profile edits with blank data
   const handleSkip = async () => {
     if (profileSaved) {
-      alert("Any unsaved changes will be discarded.");
       onClose();
       refreshUserData(); // Trigger refresh on skip
       return;
@@ -277,7 +272,6 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
     try {
       const userDocRef = doc(db, "users", currentUser.uid);
       await setDoc(userDocRef, profileData, { merge: true });
-      alert("Your profile is empty!");
       onClose();
       refreshUserData();
     } catch (error) {
