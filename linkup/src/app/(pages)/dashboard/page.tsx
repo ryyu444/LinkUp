@@ -35,7 +35,6 @@ export default function Dashboard() {
   const [showSessionPopup, setShowSessionPopup] = useState(false);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const router = useRouter();
-  const auth = useContext(AuthContext);
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
@@ -107,7 +106,7 @@ export default function Dashboard() {
             </h2>
             <button
               onClick={() => router.push('/browse')}
-              className='text-blue-600 text-base font-normal hover:underline'
+              className='text-blue-600 text-base font-normal cursor-pointer hover:underline'
             >
               View all
             </button>
