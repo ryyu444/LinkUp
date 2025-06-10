@@ -126,12 +126,12 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
   const [selectedSize, setSelectedSize] = useState<number>(0);
   const [inputValue, setInputValue] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
-  const [profileSaved, setProfileSaved] = useState(false);
+  const [profileCompleted, setprofileCompleted] = useState(false);
 
   // Predefined options for dropdowns and buttons
   const years = ["1st year", "2nd year", "3rd year", "4th year"];
   const options = ["Quiet", "Some Noise", "Collaborative"];
-  const preferredGroupSizes = [
+  const groupSizes = [
     { label: "1 on 1", value: 2 },
     { label: "Small (2-4)", value: 4 },
     { label: "Large (5+)", value: 8 },
@@ -157,7 +157,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
           setBio(userData.bio || "");
           setSubjects(userData.subjects || []);
           setSelected(userData.noisePreference || "");
-          setSelectedSize(userData.preferredGroupSize || 0);
+          setSelectedSize(userData.groupSize || 0);
 
           // Only set profile picture if user hasn’t uploaded a new one yet
           setprofilePictureUrl((prev) =>
@@ -166,7 +166,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
               : prev
           );
 
-          setProfileSaved(userData.profileSaved || false);
+          setprofileCompleted(userData.profileCompleted || false);
         }
       }
     };
@@ -216,11 +216,11 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
       year: selectedYear,
       bio,
       noisePreference: selected,
-      preferredGroupSize: selectedSize,
+      groupSize: selectedSize,
       subjects,
       email: currentUser.email,
       profilePicture: profilePictureUrl,
-      profileSaved: isValidProfile,
+      profileCompleted: isValidProfile,
     };
 
     try {
@@ -229,7 +229,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
 
       
 
-      setProfileSaved(isValidProfile);
+      setprofileCompleted(isValidProfile);
       onClose();
       refreshUserData();
     } catch (error) {
@@ -241,7 +241,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
 
   // Handler for skipping profile edits with blank data
   const handleSkip = async () => {
-    if (profileSaved) {
+    if (profileCompleted) {
       onClose();
       refreshUserData(); // Trigger refresh on skip
       return;
@@ -262,11 +262,11 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
       year: "",
       bio: "",
       noisePreference: "",
-      preferredGroupSize: 0,
+      groupSize: 0,
       subjects: [],
       email: currentUser.email,
       profilePicture: profilePictureUrl,
-      profileSaved: false,
+      profileCompleted: false,
     };
 
     try {
@@ -370,7 +370,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
             Preferred Group Size
           </p>
           <div className="flex flex-wrap gap-2">
-            {preferredGroupSizes.map(({ label, value }) => (
+            {groupSizes.map(({ label, value }) => (
               <button
                 key={value}
                 onClick={() => setSelectedSize(value)}

@@ -12,5 +12,5 @@ export default interface User {
   groupSize?: number; // Optional field for preferred group size
   registeredSessions?: String[]; // Optional field for sessions the user is registered in
   subjects?: String[];
-  profileSaved: boolean;
+  profileCompleted: boolean;
 }

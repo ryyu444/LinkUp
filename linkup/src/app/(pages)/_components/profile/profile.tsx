@@ -9,6 +9,8 @@ import ProfileForm from './profileForm/profileForm';
 import Link from 'next/link';
 
 function MainPage() {
+  const { user } = useContext(AuthContext); // ✅ Move this to the top level
+
   const [userData, setUserData] = useState<any>({
     displayName: 'Anonymous',
     major: 'Unknown Major',
@@ -19,7 +21,7 @@ function MainPage() {
     bio: '',
     preferredGroupSize: '',
     noisePreference: '',
-    profileSaved: false,
+    profileCompleted: false,
   });
 
   const auth = getFirebaseAuth();
@@ -39,12 +41,9 @@ function MainPage() {
   }
 
   const fetchUserProfile = async () => {
-    const { user } = useContext(AuthContext);
-
     if (user) {
       const userCol = collection(db, 'users');
       const userSnapshot = await getDocs(userCol);
-      // Fetch the user document using the user's UUID
       const userData = userSnapshot.docs
         .map((doc) => doc.data() as User)
         .filter((u) => u.uuid === user.uuid)[0];
@@ -60,7 +59,7 @@ function MainPage() {
         bio: userData.bio || '',
         preferredGroupSize: convertGroupSizeToString(userData?.groupSize || 0),
         noisePreference: userData.noisePreference || '',
-        profileSaved: userData.profileSaved || false,
+        profileCompleted: userData.profileCompleted || false,
       });
     }
   };
@@ -101,9 +100,9 @@ function Header({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false); // Default to false
 
-  // Set initial modal state based on profileSaved, only on first load
+  // Set initial modal state based on profileCompleted, only on first load
   useEffect(() => {
-    const checkProfileSaved = async () => {
+    const checkprofileCompleted = async () => {
       const currentUser = auth.currentUser;
 
       if (currentUser) {
@@ -112,13 +111,13 @@ function Header({
 
         if (userDoc.exists()) {
           const data = userDoc.data();
-          const profileSaved = data.profileSaved || false;
-          setIsModalOpen(!profileSaved); // Open modal only if profileSaved is false
+          const profileCompleted = data.profileCompleted || false;
+          setIsModalOpen(!profileCompleted); // Open modal only if profileCompleted is false
         }
       }
     };
 
-    checkProfileSaved();
+    checkprofileCompleted();
   }, []); // Empty dependency array ensures this runs only on mount
 
   return (
