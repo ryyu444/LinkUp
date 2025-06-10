@@ -15,4 +15,5 @@ export default interface Session {
   capacity: number;
   registered: string[]; // array of user UUIDS
   tags: Tag[]; // additional preferences, etc
+  host: User;
 }
