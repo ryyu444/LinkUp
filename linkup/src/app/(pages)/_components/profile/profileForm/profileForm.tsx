@@ -24,7 +24,7 @@ function ProfileForm({ onClose, refreshUserData }: ProfileFormProps) {
   );
 
   return (
-    <div className="relative w-full h-full top-0 left-0 bg-white flex flex-col items-center">
+    <div className="relative w-full h-full top-0 left-0 bg-white flex flex-col items-center border-l border-r">
       {/* Container for centering content with max width */}
       <div className="relative w-full max-w-[1440px] h-full px-4">
         <Header />
@@ -81,42 +81,18 @@ function Leftside({ profilePictureUrl, setprofilePictureUrl, className }: { prof
   // Handler for image upload via URL prompt
   const handleUploadClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const url = prompt("Enter the image URL (Warning: This will refresh your form, so save other changes prior to upload!):");
+    const url = prompt("Enter Your Image URL:");
 
     if (url) {
       const img = new Image();
       img.onload = () => {
         setprofilePictureUrl(url);
-        saveprofilePictureUrlToDatabase(url);
       };
       img.onerror = () => alert("Invalid URL. Please try again with a valid image URL.");
       img.src = url;
     }
   };
 
-  // Function to save profile image URL to Firebase
-  const saveprofilePictureUrlToDatabase = async (url: string) => {
-    const auth = getFirebaseAuth();
-    const db = getFirebaseDB();
-    const currentUser = auth.currentUser;
-
-    if (!currentUser) {
-      alert("No authenticated user found.");
-      return;
-    }
-
-    const profileData = {
-      profilePicture: url,
-    };
-
-    try {
-      const userDocRef = doc(db, "users", currentUser.uid);
-      await setDoc(userDocRef, profileData, { merge: true });
-    } catch (error) {
-      console.error("Error saving profile image:", error);
-      alert("Failed to save profile image.");
-    }
-  };
 
   return (
     <div className={`${className} h-full flex flex-col items-end p-4`}>
@@ -182,14 +158,22 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
           setSubjects(userData.subjects || []);
           setSelected(userData.noisePreference || "");
           setSelectedSize(userData.preferredGroupSize || 0);
-          setprofilePictureUrl(userData.profilePicture || profilePictureUrl);
+
+          // Only set profile picture if user hasn’t uploaded a new one yet
+          setprofilePictureUrl((prev) =>
+            prev === "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
+              ? userData.profilePicture || prev
+              : prev
+          );
+
           setProfileSaved(userData.profileSaved || false);
         }
       }
     };
 
     fetchProfileData();
-  }, [profilePictureUrl]);
+  }, []);
+
 
   // Handler to add a new subject to the list
   const handleAddClick = () => {
@@ -341,7 +325,7 @@ function Rightside({ onClose, profilePictureUrl, setprofilePictureUrl, className
         <textarea
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[20px] leading-[25px] outline-none w-full min-h-[120px] resize-none mb-[60px]"
+          className="rounded-[5px] border border-[#6B819B] px-3 py-2 font-inter text-[20px] leading-[25px] outline-none w-full min-h-[120px] resize-none mb-[50px]"
         />
       </div>
 
