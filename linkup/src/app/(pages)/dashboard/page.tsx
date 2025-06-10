@@ -1,9 +1,14 @@
+'use client';
+
+import {useState} from 'react'
+import { useRouter } from 'next/navigation'
 import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
 import InfoCard from '../_components/dashboard/infoCard/infoCard';
 import ActivityCard from '../_components/dashboard/activityCard/activityCard';
 import StatCard from '../_components/dashboard/statCard/statCard';
 import SessionPopup from '../_components/session/sessionPopup/sessionPopup';
 import SessionPreview from '../_components/session/sessionPreview/sessionPreview';
+import ConfirmationModal from '../_components/confirmationModal/confirmationModal';
 
 /*
     Corresponds to Dashboard page in figma
@@ -18,9 +23,27 @@ import SessionPreview from '../_components/session/sessionPreview/sessionPreview
     6. Render stats with statCard (maybe we track stats in the user profile we store in db)
 */
 export default function Dashboard() {
+  const [openPopup, setOpenPopup] = useState(false)
+  const router = useRouter()
+
   return (
     <ProtectedRoute>
+      <button className='rounded px-4 py-2 bg-red-400' onClick ={() => setOpenPopup(true)}>popup</button>
       <div>dashboard</div>
+      
+      <ConfirmationModal
+        isOpen={openPopup}
+        onClose={() => setOpenPopup(false)}
+        sessionTitle="Test Session"
+        onNavigateToSessions={() => {
+          setOpenPopup(false)
+          router.push('/sessions')
+        }}
+        onNavigateToDashboard={() => {
+          setOpenPopup(false)
+          router.push('/dashboard')
+        }}
+      />
     </ProtectedRoute>
   );
 }
