@@ -3,6 +3,7 @@ import Tag from './Tag';
 
 // can add more fields
 export default interface Session {
+  host: User;
   sessionID: String; // unique session ids
   title: String;
   description: String;
@@ -13,5 +14,5 @@ export default interface Session {
   noise: Number, // maybe map 0->3 to Silent->Collaborative
   capacity: Number;
   registered: String[]; // array of user UUIDS
-  tags: Tag[]; // additional preferences, etc
+  tags: Tag[]; // additional preferences, 
 }

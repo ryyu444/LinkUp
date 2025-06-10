@@ -1,7 +1,6 @@
 // Card for Sessions in Browse
 "use client";
 
-import { Timestamp } from "firebase/firestore";
 import SessionPopup from "../sessionPopup/sessionPopup";
 
 /*
@@ -46,7 +45,7 @@ export default function SessionCard({
       <div className="text-gray-600 text-xs mb-1">{members} Members</div>
       <div className="text-gray-600 text-sm mb-1">{noise}</div>
       <div className="flex flex-wrap gap-1 mb-4">
-        {tags.map((tag) => (
+        {tags && tags.map((tag) => (
           <div
             key={tag}
             className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
