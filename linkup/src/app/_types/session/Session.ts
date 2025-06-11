@@ -1,9 +1,14 @@
-import User from '../auth/User';
 import Tag from './Tag';
+
+interface Host {
+  uuid: string; // unique identifier for the host
+  displayName: string;
+  profilePicture?: string; // optional, can be undefined if not set
+}
 
 // can add more fields
 export default interface Session {
-  host: string;
+  host: Host;
   sessionID: string; // unique session ids
   title: string;
   description: string;
@@ -15,5 +20,4 @@ export default interface Session {
   capacity: number;
   registered: string[]; // array of user UUIDS
   tags: Tag[]; // additional preferences, etc
-  host: User;
 }
