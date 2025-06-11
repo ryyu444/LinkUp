@@ -1,21 +1,23 @@
 "use client";
 
-import { useEffect, useState, useContext } from "react";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
-import { getFirebaseDB } from "@/(api)/_lib/firebase/firebaseClient";
-import { useRouter } from "next/navigation";
-import { AuthContext } from "../_contexts/AuthContext";
-import { joinSession } from "@/(api)/_lib/firebase/joinSession";
-import ProtectedRoute from "../_components/protectedRoute/protectedRoute";
-import InfoCard from "../_components/dashboard/infoCard/infoCard";
-import ActivityCard from "../_components/dashboard/activityCard/activityCard";
-import StatCard from "../_components/dashboard/statCard/statCard";
-import SessionPopup from "../_components/session/sessionPopup/sessionPopup";
-import SessionPreview from "../_components/session/sessionPreview/sessionPreview";
-import SessionForm from "../_components/session/sessionForm/sessionForm";
-import { Search, Plus, Folder } from "lucide-react";
-import Session from "@/app/_types/session/Session";
-import { addSession } from "@/(api)/_lib/firebase/addSession";
+import { useEffect, useState, useContext } from 'react';
+import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
+import { useRouter } from 'next/navigation';
+import { AuthContext } from '../_contexts/AuthContext';
+import { joinSession } from '@/(api)/_lib/firebase/joinSession';
+import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
+import InfoCard from '../_components/dashboard/infoCard/infoCard';
+import ActivityCard from '../_components/dashboard/activityCard/activityCard';
+import StatCard from '../_components/dashboard/statCard/statCard';
+import SessionPopup from '../_components/session/sessionPopup/sessionPopup';
+import SessionPreview from '../_components/session/sessionPreview/sessionPreview';
+import ConfirmationModal from '../_components/confirmationModal/confirmationModal';
+
+import SessionForm from '../_components/session/sessionForm/sessionForm';
+import { Search, Plus, Folder } from 'lucide-react';
+import Session from '@/app/_types/session/Session';
+import { addSession } from '@/(api)/_lib/firebase/addSession';
 
 /*
   Set up auth to read in user specific information. (user object could contain name, stats, & registered sessions)
@@ -26,16 +28,18 @@ export default function Dashboard() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [showCreatePopup, setShowCreatePopup] = useState(false);
   const [showSessionPopup, setShowSessionPopup] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const joinSessionHandler = () => {
     if (!user || !selectedSession) return;
 
     joinSession(selectedSession.sessionID, user.uuid, () => {
+      // close the session pop up & show confirmation
       setShowSessionPopup(false);
-      // setShowConfirmationModal(true);
-
+      setShowConfirmationModal(true);
       // remove session user just joined from list
       setSessions((prev) =>
         prev.filter((session) => session.sessionID != selectedSession.sessionID)
@@ -70,15 +74,27 @@ export default function Dashboard() {
         };
       }) as Session[];
 
-      setSessions(sessionList);
-    } catch (error) {
-      console.error("Error fetching sessions:", error);
-    }
-  };
+        // filter out sessions that have already started, user is host, user is registered, or is full
+        const now = new Date();
+        const filteredSessions = sessionList.filter((session) => {
+          return (
+            session.startTime > now &&
+            session.host.uuid !== user?.uuid &&
+            !session.registered.includes(user?.uuid || '') &&
+            session.registered.length < session.capacity
+          );
+        });
+
+        setSessions(filteredSessions);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching sessions:', error);
+      }
+    };
 
   useEffect(() => {
     fetchSessions();
-  }, []);
+  }, [user, isLoading]);
 
   return (
     <ProtectedRoute>
@@ -137,8 +153,12 @@ export default function Dashboard() {
               View all
             </button>
           </div>
-          <div className="space-y-4">
-            {sessions.length > 0 ? (
+          <div className='space-y-4'>
+            {isLoading ? (
+              <p className='text-gray-500 text-sm font-normal'>
+                Loading upcoming sessions...
+              </p>
+            ) : sessions.length > 0 ? (
               sessions.map((session) => {
                 return (
                   <div
@@ -168,19 +188,21 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {(() => {
-        if (showSessionPopup && selectedSession) {
-          return (
-            <SessionPopup
-              session={selectedSession}
-              onClose={() => setShowSessionPopup(false)}
-              onJoin={joinSessionHandler}
-            />
-          );
-        }
+      {showSessionPopup && selectedSession && (
+        <SessionPopup
+          session={selectedSession}
+          onClose={() => setShowSessionPopup(false)}
+          onJoin={joinSessionHandler}
+        />
+      )}
 
-        return null;
-      })()}
+      {showConfirmationModal && (
+        <ConfirmationModal
+          isOpen={showConfirmationModal}
+          handler={() => setShowConfirmationModal(false)}
+          sessionTitle={selectedSession?.title || ''}
+        />
+      )}
 
       {(() => {
         if (showCreatePopup) {
