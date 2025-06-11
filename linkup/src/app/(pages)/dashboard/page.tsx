@@ -16,10 +16,8 @@ import SessionForm from '../_components/session/sessionForm/sessionForm';
 import SessionPreview from '../_components/session/sessionPreview/sessionPreview';
 import ConfirmationModal from '../_components/confirmationModal/confirmationModal';
 
-import SessionForm from '../_components/session/sessionForm/sessionForm';
 import { Search, Plus, Folder } from 'lucide-react';
 import Session from '@/app/_types/session/Session';
-import { addSession } from '@/(api)/_lib/firebase/addSession';
 
 /*
   Set up auth to read in user specific information. (user object could contain name, stats, & registered sessions)
