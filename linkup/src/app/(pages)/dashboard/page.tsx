@@ -6,11 +6,13 @@ import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '../_contexts/AuthContext';
 import { joinSession } from '@/(api)/_lib/firebase/joinSession';
+import { addSession } from '@/(api)/_lib/firebase/addSession';
 import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
 import InfoCard from '../_components/dashboard/infoCard/infoCard';
 import ActivityCard from '../_components/dashboard/activityCard/activityCard';
 import StatCard from '../_components/dashboard/statCard/statCard';
 import SessionPopup from '../_components/session/sessionPopup/sessionPopup';
+import SessionForm from '../_components/session/sessionForm/sessionForm';
 import SessionPreview from '../_components/session/sessionPreview/sessionPreview';
 import ConfirmationModal from '../_components/confirmationModal/confirmationModal';
 
@@ -28,15 +30,17 @@ export default function Dashboard() {
   const [showSessionPopup, setShowSessionPopup] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [action, setAction] = useState<'created' | 'registered'>('registered');
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
   const { user } = useContext(AuthContext);
-  const joinSessionHandler = async () => {
+  const router = useRouter();
+  const joinSessionHandler = () => {
     if (!user || !selectedSession) return;
 
-    await joinSession(selectedSession.sessionID, user.uuid, () => {
+    joinSession(selectedSession.sessionID, user.uuid, () => {
       // close the session pop up & show confirmation
       setShowSessionPopup(false);
+      setAction("registered");
       setShowConfirmationModal(true);
       // remove session user just joined from list
       setSessions((prev) =>
@@ -52,6 +56,7 @@ export default function Dashboard() {
         const q = query(
           collection(db, 'sessions'),
           orderBy('startTime'),
+          limit(3)
         );
         const snapshot = await getDocs(q);
 
@@ -93,6 +98,34 @@ export default function Dashboard() {
 
     fetchSessions();
   }, [user, isLoading]);
+
+  const handleCreateSession = async (session: Partial<Session>) => {
+    try {
+      // Add the current user as host
+      const sessionToAdd = {
+        ...session,
+        host: {
+          uuid: user?.uuid ?? '',
+          displayName: user?.displayName ?? 'Anonymous',
+          profilePicture: user?.profilePicture ?? '',
+        },
+        registered: [], // start empty
+        tags: [], // can add tag support later
+      };
+
+      const newSession = await addSession(sessionToAdd);
+
+      console.log('Session created with ID:', newSession);
+
+      // Close the form
+      setSelectedSession(newSession as Session);
+      setShowCreatePopup(false);
+      setAction('created');
+      setShowConfirmationModal(true);
+    } catch (error) {
+      console.error('Error creating session:', error);
+    }
+  };
 
   return (
     <ProtectedRoute>
@@ -186,6 +219,31 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {showCreatePopup && (
+        <div
+          className='fixed inset-0 backdrop-blur-sm bg-black/30 z-50 flex justify-center items-center p-4'
+          onClick={() => setShowCreatePopup(false)}
+        >
+          <div
+            className='relative bg-white rounded-xl max-w-4xl w-full p-8'
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowCreatePopup(false)}
+              className='absolute top-4 right-7 text-gray-400 hover:text-gray-600 text-3xl font-bold'
+              aria-label='Close'
+            >
+              &times;
+            </button>
+            <SessionForm
+              isEditing={false}
+              onSubmit={handleCreateSession}
+              onDelete={() => {}} // no delete action for dashboard
+            />
+          </div>
+        </div>
+      )}
+
       {showSessionPopup && selectedSession && (
         <SessionPopup
           session={selectedSession}
@@ -199,7 +257,7 @@ export default function Dashboard() {
           isOpen={showConfirmationModal}
           handler={() => setShowConfirmationModal(false)}
           sessionTitle={selectedSession?.title || ''}
-          action='registered'
+          action={action}
         />
       )}
     </ProtectedRoute>

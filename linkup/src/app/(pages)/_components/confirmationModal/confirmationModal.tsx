@@ -21,7 +21,7 @@ export default function ConfirmationModal({
   isOpen,
   handler,
   sessionTitle,
-  action
+  action,
 }: ConfirmationModalProps) {
   if (!isOpen) return null;
 
@@ -52,7 +52,9 @@ export default function ConfirmationModal({
             Study Success!
           </h2>
 
-          <p className='mb-1'>You have {action} {action === 'registered' ? "for" : ''} the session</p>
+          <p className='mb-1'>
+            You have {action} {action === 'registered' ? 'for' : ''} the session
+          </p>
           <h3 className='text-2xl font-bold mb-30'>{sessionTitle}</h3>
 
           <div className='flex gap-4 justify-center'>
