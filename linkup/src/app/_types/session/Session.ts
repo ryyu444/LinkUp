@@ -8,16 +8,16 @@ interface Host {
 
 // can add more fields
 export default interface Session {
-  host: Host;
+  host: User;
   sessionID: string; // unique session ids
-  title: string;
-  description: string;
-  day: string,
+  title: String;
+  description: String;
+  day: String,
   startTime: Date;
   endTime: Date;
-  location: string;
-  noise: number, // maybe map 0->3 to Silent->Collaborative
+  location: String;
+  noise: Number, // maybe map 0->3 to Silent->Collaborative
   capacity: number;
-  registered: string[]; // array of user UUIDS
-  tags: Tag[]; // additional preferences, etc
+  registered: String[]; // array of user UUIDS
+  tags: Tag[]; // additional preferences, 
 }
