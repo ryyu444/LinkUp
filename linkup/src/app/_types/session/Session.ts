@@ -1,3 +1,4 @@
+import { User } from 'firebase/auth';
 import Tag from './Tag';
 
 interface Host {
@@ -19,5 +20,5 @@ export default interface Session {
   noise: number, // maybe map 0->3 to Silent->Collaborative
   capacity: number;
   registered: string[]; // array of user UUIDS
-  tags: Tag[]; // additional preferences, etc
+  tags: Tag[]; // additional preferences, 
 }

@@ -41,7 +41,7 @@ const activityData: ActivityItem[] = [
 
 export default function ActivityCard() {
   return (
-    <div className="w-full h-60 bg-white rounded-lg shadow-[0_1px_2px_0_rgba(0,0,0,0.06)] shadow-[0_1px_3px_0_rgba(0,0,0,0.10)] outline outline-1 outline-offset-[-1px] outline-gray-200 p-6 font-['Inter']">
+    <div className="w-full h-60 bg-white rounded-lg shadow-[0_1px_3px_0_rgba(0,0,0,0.10)] outline-1 outline-offset-[-1px] outline-gray-200 p-6 font-['Inter']">
       <div className="text-sky-950 text-lg font-bold leading-7 mb-4">
         Recent Activity
       </div>

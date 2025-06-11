@@ -1,10 +1,11 @@
 'use client';
-import Image from 'next/image';
-import Link from 'next/link';
+
 import { useContext, useRef, useState, useEffect } from 'react';
 import { AuthContext } from '@/app/(pages)/_contexts/AuthContext';
 import { Button } from '@/app/(pages)/_components/ui/button';
 import { usePathname, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 /*
   TODO
    1. Need to render the login and signup buttons only if the user is not logged in
@@ -86,20 +87,33 @@ export default function Navbar() {
 
               {/* Menu links */}
               <Link
-                href='/dashboard'
-                className='block px-2 py-1 hover:bg-gray-100 rounded'
-              >
-                Dashboard
-              </Link>
-              <Link
                 href='/user'
                 className='block px-2 py-1 hover:bg-gray-100 rounded'
+                onClick={() => setIsDropdownOpen(false)}
               >
                 My Profile
               </Link>
               <Link
+                href='/dashboard'
+                className='block px-2 py-1 hover:bg-gray-100 rounded'
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                Dashboard
+              </Link>
+
+              <Link
+                href='/browse'
+                className='block px-2 py-1 hover:bg-gray-100
+                rounded'
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                Browse
+              </Link>
+
+              <Link
                 href='/sessions'
                 className='block px-2 py-1 hover:bg-gray-100 rounded'
+                onClick={() => setIsDropdownOpen(false)}
               >
                 Sessions
               </Link>

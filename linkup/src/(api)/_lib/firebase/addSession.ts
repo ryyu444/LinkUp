@@ -4,8 +4,7 @@ import Session from '@/app/_types/session/Session';
 
 export async function addSession(session: Partial<Session>) {
   const db = getFirebaseDB();
-
-  const docRef = await addDoc(collection(db, 'sessions'), {
+  const newEntry = {
     host: session.host,
     title: session.title,
     description: session.description,
@@ -18,7 +17,9 @@ export async function addSession(session: Partial<Session>) {
     registered: session.registered ?? [],
     tags: session.tags ?? [],
     createdAt: serverTimestamp(),
-  });
+  };
 
-  return docRef.id; // returns the new sessionID
+  const docRef = await addDoc(collection(db, 'sessions'), newEntry);
+
+  return { ...newEntry, sessionID: docRef.id }; // returns the new session with its ID
 }

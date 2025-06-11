@@ -2,10 +2,9 @@
 
 import { useState, useContext } from 'react';
 import { AuthContext } from '@/app/(pages)/_contexts/AuthContext';
-// import Profile from '@/app/(pages)/_components/profile/profile';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 /*
     Corresponds to Sign Up page in figma
@@ -160,15 +159,6 @@ export default function Register() {
         <Image src="/googleicon.png" alt="Google icon" width={20} height={20} />
         Sign up with Google
       </button>
-
-      {/* Profile Modal (optional feature) */}
-      {/* {showProfile && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-            <Profile onClose={() => setShowProfile(false)} />
-          </div>
-        </div>
-      )} */}
     </div>
   );
 }
