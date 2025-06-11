@@ -44,7 +44,7 @@ export default function Home() {
   // the about page
   return (
     //the page background: full vertical height, white background, dark text
-    <main className='h-[calc(100vh-64px)] bg-white text-gray-900'>
+    <main className='min-h-[calc(100vh-64px)] bg-white text-gray-900'>
       {/* the intro Section */}
       {/* 1 column on mobile device, 2 column on the ewst, even space, padding all around*/}
       <section className='h-2/3 grid grid-cols-1 md:grid-cols-2 gap-10 items-center p-10'>
