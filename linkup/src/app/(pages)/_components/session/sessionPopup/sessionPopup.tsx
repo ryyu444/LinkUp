@@ -7,12 +7,14 @@ interface SessionPopupProps {
   session: Session;
   onClose: () => void;
   onJoin?: () => void;
+  onLeave?: () => void;
 }
 
 export default function SessionPopup({
   session,
   onClose,
   onJoin,
+  onLeave,
 }: SessionPopupProps) {
   const {
     title,
@@ -152,14 +154,28 @@ export default function SessionPopup({
           {/* Join Button */}
           {Date.now() < startTime.getTime() &&
             registered.length < capacity &&
-            !registered.includes(user?.uuid) &&
+            !registered.includes(user?.uuid || '') &&
             hostUser.uuid !== user?.uuid && (
               <div className='flex justify-end mt-2'>
                 <button
-                  className="w-16 h-10 bg-blue-600 text-white text-base font-['Inter'] rounded-md hover:bg-blue-700"
+                  className="w-16 h-10 bg-blue-600 text-white text-base font-['Inter'] rounded-md hover:bg-blue-700 cursor-pointer"
                   onClick={onJoin}
                 >
                   Join
+                </button>
+              </div>
+            )}
+
+          {/* Leave Button */}
+          {Date.now() < startTime.getTime() &&
+            registered.includes(user?.uuid || '') &&
+            hostUser.uuid !== user?.uuid && (
+              <div className='flex justify-end mt-2'>
+                <button
+                  className="w-16 h-10 bg-red-600 text-white text-base font-['Inter'] rounded-md hover:bg-red-700 cursor-pointer"
+                  onClick={onLeave}
+                >
+                  Leave
                 </button>
               </div>
             )}

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { LucideIcon } from "lucide-react";
+import { LucideIcon } from 'lucide-react';
 
 interface InfoCardProps {
   title: string;
@@ -20,16 +20,16 @@ export default function InfoCard({
   return (
     <div
       onClick={onClick}
-      className="w-full h-44 bg-white rounded-lg shadow-[0_1px_3px_0_rgba(0,0,0,0.10)] outline-1 outline-offset-[-1px] outline-gray-200 cursor-pointer hover:shadow-md transition"
+      className='w-full h-44 bg-white rounded-lg shadow-[0_1px_3px_0_rgba(0,0,0,0.10)] outline-1 outline-offset-[-1px] outline-gray-200 cursor-pointer hover:shadow-md transition'
     >
-      <div className="relative w-full h-full p-6">
+      <div className='relative w-full h-full p-6'>
         {/* Title */}
         <div className="text-black text-lg font-bold leading-7 font-['Inter'] mb-3">
           {title}
         </div>
 
         {/* Icon */}
-        <Icon className="absolute top-6 right-6 w-5 h-5 text-gray-500" />
+        <Icon className='absolute top-6 right-6 w-5 h-5 text-gray-500' />
 
         {/* Description */}
         <div className="text-gray-600 text-sm font-normal leading-normal font-['Inter'] mb-6">

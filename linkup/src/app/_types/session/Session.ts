@@ -1,4 +1,3 @@
-import { User } from 'firebase/auth';
 import Tag from './Tag';
 
 interface Host {

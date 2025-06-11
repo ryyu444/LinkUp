@@ -1,3 +1,25 @@
+'use client';
+
+import { useEffect, useState, useContext } from 'react';
+import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from 'firebase/firestore';
+import { AuthContext } from '../_contexts/AuthContext';
+import { Timestamp } from 'firebase/firestore';
+import { leaveSession } from '@/(api)/_lib/firebase/sessions/leaveSession';
+import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
+import SessionPreview from '../_components/session/sessionPreview/sessionPreview';
+import SessionPopup from '../_components/session/sessionPopup/sessionPopup';
+import Session from '@/app/_types/session/Session';
+import SessionForm from '../_components/session/sessionForm/sessionForm';
+
 /*
     Corresponds to My Sessions in figma
     1. Get the sessions from props
@@ -5,20 +27,6 @@
     3. Pass the split data into sessionPreview components
     4. Style properly
 */
-
-'use client';
-
-import { useEffect, useState, useContext } from 'react';
-import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
-import { collection, getDocs, query, where, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { AuthContext } from '../_contexts/AuthContext';
-import { Timestamp } from 'firebase/firestore';
-import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
-import SessionPreview from '../_components/session/sessionPreview/sessionPreview';
-import SessionPopup from '../_components/session/sessionPopup/sessionPopup';
-import Session from '@/app/_types/session/Session';
-import SessionForm from '../_components/session/sessionForm/sessionForm';
-
 export default function Sessions() {
   const { user } = useContext(AuthContext);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -29,11 +37,11 @@ export default function Sessions() {
   const fetchSessions = async () => {
     if (!user?.uuid) return;
 
-      const db = getFirebaseDB();
-      const sessionsQuery = query(
-        collection(db, 'sessions'),
-        orderBy('startTime', 'desc')
-      );
+    const db = getFirebaseDB();
+    const sessionsQuery = query(
+      collection(db, 'sessions'),
+      orderBy('startTime', 'desc')
+    );
 
     const querySnapshot = await getDocs(sessionsQuery);
     const fetchedSessions: Session[] = [];
@@ -58,7 +66,7 @@ export default function Sessions() {
 
     const mySessions = fetchedSessions.filter((session) => {
       const isHost = session.host.uuid === user?.uuid;
-      const isRegistered = session.registered.includes(user?.uuid || "");
+      const isRegistered = session.registered.includes(user?.uuid || '');
       return isHost || isRegistered;
     });
 
@@ -78,6 +86,19 @@ export default function Sessions() {
   );
 
   const pastSessions = sessions.filter((session) => session.endTime < now);
+
+  const leaveSessionHandler = async () => {
+    if (!user || !selectedSession) return;
+
+    await leaveSession(selectedSession.sessionID, user?.uuid, () => {
+      setShowSessionPopup(false);
+      setSessions((prev) =>
+        prev.filter(
+          (session) => session.sessionID !== selectedSession.sessionID
+        )
+      );
+    });
+  };
 
   if (loading) {
     return (
@@ -116,11 +137,11 @@ export default function Sessions() {
                 }}
               >
                 <SessionPreview
-                key={session.sessionID}
-                session={session}
-                isHost={session.host.uuid === user?.uuid}
-                onEdit={(session) => setEditSession(session)}
-              />
+                  key={session.sessionID}
+                  session={session}
+                  isHost={session.host.uuid === user?.uuid}
+                  onEdit={(session) => setEditSession(session)}
+                />
               </div>
             ))}
           </div>
@@ -146,10 +167,10 @@ export default function Sessions() {
                 }}
               >
                 <SessionPreview
-                key={session.sessionID}
-                session={session}
-                isHost={session.host.uuid === user?.uuid}
-              />
+                  key={session.sessionID}
+                  session={session}
+                  isHost={session.host.uuid === user?.uuid}
+                />
               </div>
             ))}
           </div>
@@ -162,23 +183,23 @@ export default function Sessions() {
         <SessionPopup
           session={selectedSession}
           onClose={() => setShowSessionPopup(false)}
-          onJoin={() => {}}
+          onLeave={leaveSessionHandler}
         />
       )}
 
       {editSession && (
         <div
-          className="fixed inset-0 backdrop-blur-sm bg-black/30 z-50 flex justify-center items-center p-4"
+          className='fixed inset-0 backdrop-blur-sm bg-black/30 z-50 flex justify-center items-center p-4'
           onClick={() => setEditSession(null)}
         >
           <div
-            className="relative bg-white rounded-xl max-w-4xl w-full p-8"
+            className='relative bg-white rounded-xl max-w-4xl w-full p-8'
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setEditSession(null)}
-              className="absolute top-4 right-7 text-gray-400 hover:text-gray-600 text-3xl font-bold"
-              aria-label="Close"
+              className='absolute top-4 right-7 text-gray-400 hover:text-gray-600 text-3xl font-bold'
+              aria-label='Close'
             >
               &times;
             </button>
@@ -188,7 +209,7 @@ export default function Sessions() {
               onSubmit={async (updatedFields) => {
                 // Save updated session to Firebase here:
                 const db = getFirebaseDB();
-                const sessionRef = doc(db, "sessions", editSession.sessionID);
+                const sessionRef = doc(db, 'sessions', editSession.sessionID);
 
                 await updateDoc(sessionRef, {
                   title: updatedFields.title,
@@ -210,7 +231,7 @@ export default function Sessions() {
               onDelete={async () => {
                 // Handle delete
                 const db = getFirebaseDB();
-                const sessionRef = doc(db, "sessions", editSession.sessionID);
+                const sessionRef = doc(db, 'sessions', editSession.sessionID);
 
                 await deleteDoc(sessionRef);
 

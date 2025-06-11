@@ -1,4 +1,5 @@
 'use client';
+
 import { useRouter } from 'next/navigation';
 
 /*
@@ -9,7 +10,6 @@ import { useRouter } from 'next/navigation';
         - Dashboard: redirect to /dashboard
     3. Used for create & join
 */
-
 interface ConfirmationModalProps {
   isOpen: boolean;
   handler: () => void;

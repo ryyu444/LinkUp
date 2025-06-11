@@ -1,10 +1,9 @@
 'use client';
+
 import { useEffect, useContext } from 'react';
 import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
 import { collection, getDocs } from 'firebase/firestore';
 import { AuthContext } from './_contexts/AuthContext';
-import Example from './_components/example/example';
-import User from '../_types/auth/User';
 import Image from 'next/image';
 
 async function testDB() {
@@ -20,12 +19,11 @@ async function testDB() {
     return { email, uuid };
   });
 
-  console.log(usersCol);
-  console.log(usersSnapshot);
-  console.log(userList);
+  // console.log(usersCol);
+  // console.log(usersSnapshot);
+  // console.log(userList);
 }
 
-let title = 'WOO';
 // Note: Components are simply written with HTML tag syntax whether the name of the component is the tag name
 // You can also pass in props and have your component take them in (e.g title)
 

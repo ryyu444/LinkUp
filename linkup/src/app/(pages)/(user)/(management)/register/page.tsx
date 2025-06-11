@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useContext } from 'react';
 import { AuthContext } from '@/app/(pages)/_contexts/AuthContext';
@@ -22,7 +22,7 @@ export default function Register() {
     last: '',
     email: '',
     password: '',
-    confirm: ''
+    confirm: '',
   });
   const [error, setError] = useState('');
   // const [showProfile, setShowProfile] = useState(false);
@@ -55,7 +55,6 @@ export default function Register() {
       await login('EmailPassword', 'signup', formData);
       // move to dashboard when signuo success
       router.push('/dashboard');
-      //setShowProfile(true);
     } catch (err: any) {
       setError(err.message || 'Signup failed.');
     }
@@ -75,32 +74,34 @@ export default function Register() {
   };
 
   return (
-    <div className="flex flex-col w-1/2">
+    <div className='flex flex-col w-1/2'>
       {/* the right part */}
       {/* Heading */}
-      <h2 className="text-2xl font-bold text-blue-900 mb-1">Create your account</h2>
+      <h2 className='text-2xl font-bold text-blue-900 mb-1'>
+        Create your account
+      </h2>
       {/* subtext with link to login */}
-      <p className="text-sm text-gray-600 mb-6">
+      <p className='text-sm text-gray-600 mb-6'>
         Already have an account?{' '}
-        <Link href="/login" className="text-blue-700 hover:underline">
+        <Link href='/login' className='text-blue-700 hover:underline'>
           Log in
         </Link>
       </p>
       {/* the signup form */}
-      <form onSubmit={handleSignup} className="space-y-4">
-        <div className="flex gap-4">
+      <form onSubmit={handleSignup} className='space-y-4'>
+        <div className='flex gap-4'>
           <input
-            name="first"
-            placeholder="First Name"
-            className="w-1/2 px-4 py-2 border rounded"
+            name='first'
+            placeholder='First Name'
+            className='w-1/2 px-4 py-2 border rounded'
             value={form.first}
             onChange={handleChange}
             required
           />
           <input
-            name="last"
-            placeholder="Last Name"
-            className="w-1/2 px-4 py-2 border rounded"
+            name='last'
+            placeholder='Last Name'
+            className='w-1/2 px-4 py-2 border rounded'
             value={form.last}
             onChange={handleChange}
             required
@@ -108,55 +109,56 @@ export default function Register() {
         </div>
 
         <input
-          name="email"
-          type="email"
-          placeholder="Email Address"
-          className="w-full px-4 py-2 border rounded"
+          name='email'
+          type='email'
+          placeholder='Email Address'
+          className='w-full px-4 py-2 border rounded'
           value={form.email}
           onChange={handleChange}
           required
         />
 
         <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          className="w-full px-4 py-2 border rounded"
+          name='password'
+          type='password'
+          placeholder='Password'
+          className='w-full px-4 py-2 border rounded'
           value={form.password}
           onChange={handleChange}
           required
         />
 
         <input
-          name="confirm"
-          type="password"
-          placeholder="Confirm Password"
-          className="w-full px-4 py-2 border rounded"
+          name='confirm'
+          type='password'
+          placeholder='Confirm Password'
+          className='w-full px-4 py-2 border rounded'
           value={form.confirm}
           onChange={handleChange}
           required
         />
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className='text-sm text-red-600'>{error}</p>}
         {/* submit button */}
         <button
-          type="submit"
-          className="w-full bg-blue-900 text-white py-2 rounded hover:bg-blue-800 transition">
+          type='submit'
+          className='w-full bg-blue-900 text-white py-2 rounded hover:bg-blue-800 transition'
+        >
           Create Account
         </button>
       </form>
       {/* or continue with  */}
-      <div className="my-6 flex items-center gap-4">
-        <hr className="flex-grow border-gray-300" />
-        <span className="text-sm text-gray-500">or continue with</span>
-        <hr className="flex-grow border-gray-300" />
+      <div className='my-6 flex items-center gap-4'>
+        <hr className='flex-grow border-gray-300' />
+        <span className='text-sm text-gray-500'>or continue with</span>
+        <hr className='flex-grow border-gray-300' />
       </div>
       {/* Google Signup button */}
       <button
         onClick={handleGoogleSignup}
-        className="w-full border px-4 py-2 rounded flex items-center justify-center gap-2 text-gray-700 hover:bg-gray-50 transition"
+        className='w-full border px-4 py-2 rounded flex items-center justify-center gap-2 text-gray-700 hover:bg-gray-50 transition'
       >
-        <Image src="/googleicon.png" alt="Google icon" width={20} height={20} />
+        <Image src='/googleicon.png' alt='Google icon' width={20} height={20} />
         Sign up with Google
       </button>
     </div>
