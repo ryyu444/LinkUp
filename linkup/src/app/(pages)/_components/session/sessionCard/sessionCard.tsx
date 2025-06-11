@@ -1,6 +1,4 @@
 // Card for Sessions in Browse
-'use client';
-
 import { CiLocationOn, CiClock1 } from 'react-icons/ci';
 import { GoPeople } from 'react-icons/go';
 import { IoVolumeHighOutline } from 'react-icons/io5';
