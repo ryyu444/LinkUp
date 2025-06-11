@@ -200,6 +200,7 @@ export default function Dashboard() {
           isOpen={showConfirmationModal}
           handler={() => setShowConfirmationModal(false)}
           sessionTitle={selectedSession?.title || ''}
+          action='registered'
         />
       )}
     </ProtectedRoute>
