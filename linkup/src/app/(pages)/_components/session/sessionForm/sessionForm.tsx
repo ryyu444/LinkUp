@@ -9,6 +9,7 @@ interface SessionFormProps {
   onSubmit: (session: Partial<Session>) => void;
   onDelete?: () => void;
   isEditing?: boolean;
+  onCancel?: () => void;
 }
 
 const noiseLevels = ['Silent', 'Quiet', 'Moderate', 'Collaborative'];
@@ -19,6 +20,7 @@ export default function SessionForm({
   onDelete,
   // true for edit, false for create
   isEditing = true,
+  onCancel,
 }: SessionFormProps) {
   // Set up internal state for the form fields
   const [form, setForm] = useState({
@@ -227,7 +229,7 @@ export default function SessionForm({
             {/* Cancle button */}
             <Button
               type="button"
-              onClick={() => window.history.back()}
+              onClick={() => onCancel?.()}
               className="w-full md:w-auto px-6 py-3 text-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 rounded-lg"
             >
               Cancel Changes
