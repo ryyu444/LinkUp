@@ -1,8 +1,13 @@
-import User from '../auth/User';
 import Tag from './Tag';
+
+interface Host {
+  displayName: String;
+  profilePicture?: String;
+}
 
 // can add more fields
 export default interface Session {
+  host: Host; // host of the session
   sessionID: String; // unique session ids
   title: String;
   description: String;
