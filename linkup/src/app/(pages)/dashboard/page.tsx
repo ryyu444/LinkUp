@@ -40,7 +40,7 @@ export default function Dashboard() {
     joinSession(selectedSession.sessionID, user.uuid, () => {
       // close the session pop up & show confirmation
       setShowSessionPopup(false);
-      setAction("registered");
+      setAction('registered');
       setShowConfirmationModal(true);
       // remove session user just joined from list
       setSessions((prev) =>
@@ -53,47 +53,44 @@ export default function Dashboard() {
     const fetchSessions = async () => {
       try {
         const db = getFirebaseDB();
-        const q = query(
-          collection(db, 'sessions'),
-          orderBy('startTime'),
-          limit(3)
-        );
+        const q = query(collection(db, 'sessions'), orderBy('startTime'));
         const snapshot = await getDocs(q);
 
-    const sessionList = snapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        sessionID: doc.id,
-        host: data.host,
-        title: data.title,
-        description: data.description,
-        day: data.day,
-        startTime: data.startTime.toDate(),
-        endTime: data.endTime.toDate(),
-        location: data.location,
-        noise: data.noise,
-        capacity: data.capacity,
-        registered: data.registered ?? [],
-        tags: data.tags ?? [],
-      };
-    }) as Session[];
+        const sessionList = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            sessionID: doc.id,
+            host: data.host,
+            title: data.title,
+            description: data.description,
+            day: data.day,
+            startTime: data.startTime.toDate(),
+            endTime: data.endTime.toDate(),
+            location: data.location,
+            noise: data.noise,
+            capacity: data.capacity,
+            registered: data.registered ?? [],
+            tags: data.tags ?? [],
+          };
+        }) as Session[];
 
-      // filter out sessions that have already started, user is host, user is registered, or is full
-      const now = new Date();
-      const filteredSessions = sessionList.filter((session) => {
-        return (
-          session.startTime > now &&
-          session.host.uuid !== user?.uuid &&
-          !session.registered.includes(user?.uuid || '') &&
-          session.registered.length < session.capacity
-        );
-      });
+        // filter out sessions that have already started, user is host, user is registered, or is full
+        const now = new Date();
+        const filteredSessions = sessionList.filter((session) => {
+          return (
+            session.startTime > now &&
+            session.host.uuid !== user?.uuid &&
+            !session.registered.includes(user?.uuid || '') &&
+            session.registered.length < session.capacity
+          );
+        });
 
-      setSessions(filteredSessions);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error fetching sessions:', error);
-    }};
+        setSessions(filteredSessions);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching sessions:', error);
+      }
+    };
 
     fetchSessions();
   }, [user, isLoading]);
@@ -189,7 +186,7 @@ export default function Dashboard() {
                 Loading upcoming sessions...
               </p>
             ) : sessions.length > 0 ? (
-              sessions.map((session) => {
+              sessions.slice(0, 3).map((session) => {
                 return (
                   <div
                     key={session.sessionID}
