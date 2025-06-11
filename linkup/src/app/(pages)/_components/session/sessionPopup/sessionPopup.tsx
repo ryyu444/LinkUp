@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { AuthContext } from '@/app/(pages)/_contexts/AuthContext';
 import Session from '@/app/_types/session/Session';
+import Link from 'next/link';
 
 interface SessionPopupProps {
   session: Session;
@@ -22,13 +24,15 @@ export default function SessionPopup({
     noise,
     capacity,
     registered,
-    tags,
   } = session;
+
+  const { user } = useContext(AuthContext);
 
   const hostUser = {
     displayName: session.host.displayName || 'Unknown',
     avatarUrl:
       session.host.profilePicture || 'https://placehold.co/50x50?text=U',
+    uuid: session.host.uuid,
   };
 
   return (
@@ -112,11 +116,13 @@ export default function SessionPopup({
         <div className='absolute bottom-8 left-8 right-8 flex flex-col gap-4'>
           {/* Host */}
           <div className='flex items-center gap-4'>
-            <img
-              src={hostUser?.avatarUrl}
-              alt='Host avatar'
-              className='w-11 h-11 rounded-full'
-            />
+            <Link href={`/user/${hostUser.uuid}`}>
+              <img
+                src={hostUser?.avatarUrl}
+                alt='Host avatar'
+                className='w-11 h-11 rounded-full'
+              />
+            </Link>
             <div>
               <div className="text-gray-600 text-sm font-['Inter']">Host</div>
               <div className="text-gray-600 text-2xl font-['Inter']">
@@ -144,16 +150,19 @@ export default function SessionPopup({
           </div>
 
           {/* Join Button */}
-          {Date.now() < startTime.getTime() && registered.length < capacity && (
-            <div className='flex justify-end mt-2'>
-              <button
-                className="w-16 h-10 bg-blue-600 text-white text-base font-['Inter'] rounded-md hover:bg-blue-700"
-                onClick={onJoin}
-              >
-                Join
-              </button>
-            </div>
-          )}
+          {Date.now() < startTime.getTime() &&
+            registered.length < capacity &&
+            !registered.includes(user?.uuid) &&
+            hostUser.uuid !== user?.uuid && (
+              <div className='flex justify-end mt-2'>
+                <button
+                  className="w-16 h-10 bg-blue-600 text-white text-base font-['Inter'] rounded-md hover:bg-blue-700"
+                  onClick={onJoin}
+                >
+                  Join
+                </button>
+              </div>
+            )}
         </div>
       </div>
     </div>
