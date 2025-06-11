@@ -88,18 +88,21 @@ export default function Navbar() {
               <Link
                 href='/dashboard'
                 className='block px-2 py-1 hover:bg-gray-100 rounded'
+                onClick={() => setIsDropdownOpen(false)}
               >
                 Dashboard
               </Link>
               <Link
                 href='/user'
                 className='block px-2 py-1 hover:bg-gray-100 rounded'
+                onClick={() => setIsDropdownOpen(false)}
               >
                 My Profile
               </Link>
               <Link
                 href='/sessions'
                 className='block px-2 py-1 hover:bg-gray-100 rounded'
+                onClick={() => setIsDropdownOpen(false)}
               >
                 Sessions
               </Link>
