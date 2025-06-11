@@ -2,15 +2,16 @@
 
 import { AuthContext } from '../../_contexts/AuthContext';
 import { useState, useEffect, useContext } from 'react';
-import { getFirebaseAuth, getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
+import {
+  getFirebaseAuth,
+  getFirebaseDB,
+} from '@/(api)/_lib/firebase/firebaseClient';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import User from '@/app/_types/auth/User';
 import ProfileForm from './profileForm/profileForm';
 import Link from 'next/link';
 
-function MainPage() {
-  const { user } = useContext(AuthContext); // ✅ Move this to the top level
-
+function MainPage({ userID }: { userID: string }) {
   const [userData, setUserData] = useState<any>({
     displayName: 'Anonymous',
     major: 'Unknown Major',
@@ -21,7 +22,7 @@ function MainPage() {
     bio: '',
     preferredGroupSize: '',
     noisePreference: '',
-    profileCompleted: false,
+    firstTimeUser: true,
   });
 
   const auth = getFirebaseAuth();
@@ -41,12 +42,12 @@ function MainPage() {
   }
 
   const fetchUserProfile = async () => {
-    if (user) {
+    if (userID) {
       const userCol = collection(db, 'users');
       const userSnapshot = await getDocs(userCol);
       const userData = userSnapshot.docs
         .map((doc) => doc.data() as User)
-        .filter((u) => u.uuid === user.uuid)[0];
+        .filter((u) => u.uuid === userID)[0];
 
       setUserData({
         displayName: userData.displayName || 'Anonymous',
@@ -59,7 +60,7 @@ function MainPage() {
         bio: userData.bio || '',
         preferredGroupSize: convertGroupSizeToString(userData?.groupSize || 0),
         noisePreference: userData.noisePreference || '',
-        profileCompleted: userData.profileCompleted || false,
+        firstTimeUser: userData.firstTimeUser,
       });
     }
   };
@@ -67,6 +68,8 @@ function MainPage() {
   useEffect(() => {
     fetchUserProfile();
   }, []);
+
+  console.log('User Data:', userData); // Debugging line to check userData
 
   return (
     <div>
@@ -100,7 +103,7 @@ function Header({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false); // Default to false
 
-  // Set initial modal state based on profileCompleted, only on first load
+  // Set initial modal state based on firstTimeUser, only on first load
   useEffect(() => {
     const checkprofileCompleted = async () => {
       const currentUser = auth.currentUser;
@@ -111,8 +114,8 @@ function Header({
 
         if (userDoc.exists()) {
           const data = userDoc.data();
-          const profileCompleted = data.profileCompleted || false;
-          setIsModalOpen(!profileCompleted); // Open modal only if profileCompleted is false
+          const firstTimeUser = data.firstTimeUser;
+          setIsModalOpen(firstTimeUser); // Open modal only if firstTimeUser is true
         }
       }
     };
@@ -188,13 +191,13 @@ function NameSection({ userData }: { userData: any }) {
   }
 
   return (
-    <div className='relative mb-14 ml-16 max-w-[9999px] mx-auto'>
+    <div className='relative mb-8 ml-16 max-w-[9999px] mx-auto'>
       {/* User's name */}
-      <p className='relative font-inter font-semibold text-[50px] leading-[35px] mb-3 align-middle tracking-[0px]'>
+      <p className='relative font-inter font-semibold text-[50px] leading-[35px] mb-8 align-middle tracking-[0px]'>
         {userData.displayName}
       </p>
       {/* User's major */}
-      <p className='relative ml-1 font-inter font-medium text-[25px] leading-[25px] tracking-[0px] align-middle'>
+      <p className='relative ml-1 font-inter font-medium text-[25px] leading-[25px] mb-3 tracking-[0px] align-middle'>
         {userData.major}
       </p>
       {/* User's year */}
@@ -207,7 +210,7 @@ function NameSection({ userData }: { userData: any }) {
         role='button'
         tabIndex={0}
         onClick={toggleVerified}
-        className={`absolute right-[3%] top-1/2 -translate-y-1/2 w-[132px] h-[54px] rounded-[10px] cursor-pointer
+        className={`absolute right-[3%] top-0 -translate-y-1/2 w-[132px] h-[54px] rounded-[10px] cursor-pointer
           ${verified ? 'bg-[#79fbd1]' : 'bg-[#F5F5F5]'}
           flex items-center justify-center
         `}
@@ -248,9 +251,9 @@ function StudyInterest({
   noisePreference: string;
 }) {
   return (
-    <div className='flex ml-16 mb-24 max-w-[1400px] mx-auto'>
+    <div className='flex justify-between ml-16 w-[calc(100%-(var(--spacing)*16))]'>
       {/* Study Interest */}
-      <div className='w-[45%]'>
+      <div className='w-1/2'>
         <p className='font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-1'>
           Study Interests
         </p>
@@ -278,11 +281,8 @@ function StudyInterest({
         </div>
       </div>
 
-      {/* Blank Block */}
-      <div className='w-[15%]'></div>
-
       {/* Study Preference */}
-      <div className='w-[30%]'>
+      <div className='w-fit flex flex-col mr-16'>
         <p className='font-inter font-semibold text-[25px] leading-[50px] tracking-[0px] align-middle mb-2'>
           Study Preferences
         </p>
@@ -318,11 +318,11 @@ function StudyInterest({
 // Make sure that the profile info comes from the user's profile in the database
 // Make sure the styling is consistent with the Figma design
 // Once again this is broken up into too many components, but work with what you have.
-export default function Profile() {
+export default function Profile({ userID }: { userID: string }) {
   return (
-    <div className='h-[92vh] w-full bg-gray-100 bg-opacity-30 backdrop-filter backdrop-blur-sm flex justify-center'>
-      <div className='relative w-full bg-white max-w-[9999px] mx-auto'>
-        <MainPage />
+    <div className='h-[calc(100vh-64px)] w-full bg-gray-100 bg-opacity-30 backdrop-filter backdrop-blur-sm flex justify-center'>
+      <div className='relative w-full bg-white max-w-[9999px] mx-auto z-999999'>
+        <MainPage userID={userID} />
       </div>
     </div>
   );

@@ -1,17 +1,23 @@
-import User from '../auth/User';
 import Tag from './Tag';
+
+interface Host {
+  uuid: string; // unique identifier for the host
+  displayName: string;
+  profilePicture?: string; // optional, can be undefined if not set
+}
 
 // can add more fields
 export default interface Session {
-  sessionID: String; // unique session ids
-  title: String;
-  description: String;
-  day: String,
+  host: Host;
+  sessionID: string; // unique session ids
+  title: string;
+  description: string;
+  day: string,
   startTime: Date;
   endTime: Date;
-  location: String;
-  noise: Number, // maybe map 0->3 to Silent->Collaborative
-  capacity: Number;
-  registered: String[]; // array of user UUIDS
+  location: string;
+  noise: number, // maybe map 0->3 to Silent->Collaborative
+  capacity: number;
+  registered: string[]; // array of user UUIDS
   tags: Tag[]; // additional preferences, etc
 }
