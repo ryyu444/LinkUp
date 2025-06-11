@@ -12,6 +12,7 @@ import ActivityCard from '../_components/dashboard/activityCard/activityCard';
 import StatCard from '../_components/dashboard/statCard/statCard';
 import SessionPopup from '../_components/session/sessionPopup/sessionPopup';
 import SessionPreview from '../_components/session/sessionPreview/sessionPreview';
+import ConfirmationModal from '../_components/confirmationModal/confirmationModal';
 
 import { Search, Plus, Folder } from 'lucide-react';
 import Session from '@/app/_types/session/Session';
@@ -25,6 +26,7 @@ export default function Dashboard() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [showCreatePopup, setShowCreatePopup] = useState(false);
   const [showSessionPopup, setShowSessionPopup] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -33,9 +35,9 @@ export default function Dashboard() {
     if (!user || !selectedSession) return;
 
     joinSession(selectedSession.sessionID, user.uuid, () => {
+      // close the session pop up & show confirmation
       setShowSessionPopup(false);
-      // setShowConfirmationModal(true);
-
+      setShowConfirmationModal(true);
       // remove session user just joined from list
       setSessions((prev) =>
         prev.filter((session) => session.sessionID != selectedSession.sessionID)
@@ -185,19 +187,21 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {(() => {
-        if (showSessionPopup && selectedSession) {
-          return (
-            <SessionPopup
-              session={selectedSession}
-              onClose={() => setShowSessionPopup(false)}
-              onJoin={joinSessionHandler}
-            />
-          );
-        }
+      {showSessionPopup && selectedSession && (
+        <SessionPopup
+          session={selectedSession}
+          onClose={() => setShowSessionPopup(false)}
+          onJoin={joinSessionHandler}
+        />
+      )}
 
-        return null;
-      })()}
+      {showConfirmationModal && (
+        <ConfirmationModal
+          isOpen={showConfirmationModal}
+          handler={() => setShowConfirmationModal(false)}
+          sessionTitle={selectedSession?.title || ''}
+        />
+      )}
     </ProtectedRoute>
   );
 }
