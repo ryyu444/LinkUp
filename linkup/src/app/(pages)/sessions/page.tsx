@@ -53,9 +53,11 @@ export default function Sessions() {
         });
       });
 
-      const mySessions = fetchedSessions.filter(
-        (session) => session.host.uuid === user?.uuid
-      );
+      const mySessions = fetchedSessions.filter((session) => {
+        const isHost = session.host.uuid === user?.uuid;
+        const isRegistered = session.registered.includes(user?.uuid || '');
+        return isHost || isRegistered;
+      });
 
       setSessions(mySessions);
       setLoading(false);
