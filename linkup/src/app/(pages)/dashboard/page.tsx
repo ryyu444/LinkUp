@@ -47,55 +47,53 @@ export default function Dashboard() {
     });
   };
 
-  useEffect(() => {
-    const fetchSessions = async () => {
-      try {
-        const db = getFirebaseDB();
-        const q = query(
-          collection(db, 'sessions'),
-          orderBy('startTime'),
+  const fetchSessions = async () => {
+    try {
+      const db = getFirebaseDB();
+      const q = query(
+        collection(db, 'sessions'),
+        orderBy('startTime'),
+      );
+      const snapshot = await getDocs(q);
+
+    const sessionList = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        sessionID: doc.id,
+        host: data.host,
+        title: data.title,
+        description: data.description,
+        day: data.day,
+        startTime: data.startTime.toDate(),
+        endTime: data.endTime.toDate(),
+        location: data.location,
+        noise: data.noise,
+        capacity: data.capacity,
+        registered: data.registered ?? [],
+        tags: data.tags ?? [],
+      };
+    }) as Session[];
+
+      // filter out sessions that have already started, user is host, user is registered, or is full
+      const now = new Date();
+      const filteredSessions = sessionList.filter((session) => {
+        return (
+          session.startTime > now &&
+          session.host.uuid !== user?.uuid &&
+          !session.registered.includes(user?.uuid || '') &&
+          session.registered.length < session.capacity
         );
-        const snapshot = await getDocs(q);
+      });
 
-      const sessionList = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          sessionID: doc.id,
-          host: data.host,
-          title: data.title,
-          description: data.description,
-          day: data.day,
-          startTime: data.startTime.toDate(),
-          endTime: data.endTime.toDate(),
-          location: data.location,
-          noise: data.noise,
-          capacity: data.capacity,
-          registered: data.registered ?? [],
-          tags: data.tags ?? [],
-        };
-      }) as Session[];
+      setSessions(filteredSessions);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching sessions:', error);
+    }};
 
-        // filter out sessions that have already started, user is host, user is registered, or is full
-        const now = new Date();
-        const filteredSessions = sessionList.filter((session) => {
-          return (
-            session.startTime > now &&
-            session.host.uuid !== user?.uuid &&
-            !session.registered.includes(user?.uuid || '') &&
-            session.registered.length < session.capacity
-          );
-        });
-
-        setSessions(filteredSessions);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching sessions:', error);
-      }
-    };
-
-  useEffect(() => {
-    fetchSessions();
-  }, [user, isLoading]);
+    useEffect(() => {
+      fetchSessions();
+    }, [user, isLoading]);
 
   return (
     <ProtectedRoute>
