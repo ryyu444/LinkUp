@@ -1,9 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ECS-162 Final Project: LinkUp - A Study Buddy Web Application
 
-## Getting Started
+## Description
+LinkUp is a web application that connects students through collaborative study sessions where social accountability enhances productivity. This project utilizes a serverless, Firebase backend and React with Next.js frontend.
 
-First, run the development server:
+## Features
+- Find study partners with similar study preferences
+- Create or browse existing study sessions
 
+## Technology Stack
+- **Frontend**: React, Next.js
+- **Backend**: Firebase (serverless)
+- **Database**: Firestore
+- **Authentication**: Firebase Auth
+- **Styling**: Tailwind
+
+## Installation and Setup
+1. Clone the repository in your desired folder.
+```bash
+git clone https://github.com/ryyu444/LinkUp.git
+```
+2. Navigate to the project directory:
+```bash
+cd LinkUp
+```
+3. Install the necessary dependencies:
+```bash
+npm i
+```
+4. Once installed, run the development server.
 ```bash
 npm run dev
 # or
@@ -13,24 +37,21 @@ pnpm dev
 # or
 bun dev
 ```
+5. Navigate to the generated localhost link and explore!
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Contributors
+The following students contributed to this project as part of ECS-162:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Ryan Yu
+- James Fu  
+- Andrew Fojas
+- Mingzhe Wu
+- Shengzhe Zhang
+- Weifeng Liu
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+*Note: Author order does not represent relative contribution levels.*
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+This project is dual-licensed under:
+- MIT License
+- Apache License 2.0
