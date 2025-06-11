@@ -1,7 +1,7 @@
 import Session from '@/app/_types/session/Session';
 
 export default function SessionPreview({ session }: { session: Session }) {
-  const { title, startTime, endTime, location, capacity, registered } = session;
+  const { title, startTime, endTime, location, registered } = session;
 
   const displayAttendees = registered.slice(0, 3);
   const remaining = registered.length - displayAttendees.length;
