@@ -33,10 +33,10 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { user } = useContext(AuthContext);
-  const joinSessionHandler = () => {
+  const joinSessionHandler = async () => {
     if (!user || !selectedSession) return;
 
-    joinSession(selectedSession.sessionID, user.uuid, () => {
+    await joinSession(selectedSession.sessionID, user.uuid, () => {
       // close the session pop up & show confirmation
       setShowSessionPopup(false);
       setShowConfirmationModal(true);
@@ -46,15 +46,16 @@ export default function Dashboard() {
       );
     });
   };
-  const fetchSessions = async () => {
-    try {
-      const db = getFirebaseDB();
-      const q = query(
-        collection(db, "sessions"),
-        orderBy("startTime"),
-        limit(3)
-      );
-      const snapshot = await getDocs(q);
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const db = getFirebaseDB();
+        const q = query(
+          collection(db, 'sessions'),
+          orderBy('startTime'),
+        );
+        const snapshot = await getDocs(q);
 
       const sessionList = snapshot.docs.map((doc) => {
         const data = doc.data();
@@ -201,6 +202,7 @@ export default function Dashboard() {
           isOpen={showConfirmationModal}
           handler={() => setShowConfirmationModal(false)}
           sessionTitle={selectedSession?.title || ''}
+          action='registered'
         />
       )}
 
