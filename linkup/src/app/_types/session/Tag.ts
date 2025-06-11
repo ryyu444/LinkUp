@@ -1,4 +1,4 @@
 export default interface Tag {
-  title: String;
-  color: String;
+  title: string;
+  color: string;
 }

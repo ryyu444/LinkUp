@@ -1,12 +1,3 @@
-'use client';
-
-import { useEffect, useState, useContext } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
-import { AuthContext } from '../_contexts/AuthContext';
-import SessionCard from '../_components/session/sessionCard/sessionCard';
-import Session from '../../_types/session/Session';
-import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
 /*
     Corresponds to Browse figma page
     1. Get session data from props
@@ -21,6 +12,18 @@ import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
 
 
 // note: filtering is not working right now bc we need to update the sessions in the db to have the correct fields
+'use client';
+
+import { useEffect, useState, useContext } from 'react';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
+import { AuthContext } from '../_contexts/AuthContext';
+import SessionCard from '../_components/session/sessionCard/sessionCard';
+import Session from '../../_types/session/Session';
+import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
+import SessionPopup from '../_components/session/sessionPopup/sessionPopup'
+import { joinSession } from '@/(api)/_lib/firebase/joinSession';
+
 export default function Browse() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,6 +35,20 @@ export default function Browse() {
   const [timeFilter, setTimeFilter] = useState('');
   const [sortOption, setSortOption] = useState('date-asc');
   const { user } = useContext(AuthContext);
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const noiseMap = ['Silent', 'Low', 'Medium', 'Collaborative']; // 0 → 3
+  const handleViewSession = (session: Session) => {
+    setSelectedSession(session);
+  };
+  
+  const handleJoinSession = async () => {
+    if (!selectedSession || !user) return;
+  
+    await joinSession(selectedSession.sessionID, user.uuid, () => {
+      console.log('Join successful!');
+      //confirmationmodal(); // close the popup after successful join
+    });
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -40,21 +57,27 @@ export default function Browse() {
       try {
         setLoading(true);
         const db = getFirebaseDB();
-        const q = query(collection(db, 'sessions'), orderBy('date'));
+        const q = query(collection(db, 'sessions'), orderBy('day'));
         const snapshot = await getDocs(q);
-        const sessionList = snapshot.docs.map((doc) => ({
-          sessionID: doc.id,
-          ...doc.data(),
-        })) as Session[];
-
-        // Apply filtering
+    
+        const sessionList = snapshot.docs.map((doc) => {
+          const data = doc.data();
+    
+          return {
+            sessionID: doc.id,
+            ...data,
+            startTime: data.startTime.toDate(), // Convert Timestamp → Date
+            endTime: data.endTime.toDate(),     // Convert Timestamp → Date
+          };
+        }) as Session[];
+    
+        // Filter out full sessions and ones created by me
         const filteredSessions = sessionList.filter((session) => {
-          const isFull =
-            (session.registered?.length ?? 0) >= (session.capacity ?? Infinity);
+          const isFull = session.registered.length >= session.capacity;
           const isCreatedByMe = session.host.uuid === user?.uuid;
           return !isFull && !isCreatedByMe;
         });
-
+    
         setSessions(filteredSessions);
       } catch (error) {
         console.error('Error fetching sessions:', error);
@@ -66,7 +89,7 @@ export default function Browse() {
     fetchSessions();
   }, [user]);
 
-  // need to fix filters to work with Session type
+  // Filters
   const filteredSessions = sessions.filter((session) => {
     const matchesSubject =
       subjectFilter === '' ||
@@ -78,23 +101,23 @@ export default function Browse() {
 
     const matchesNoise =
       noiseFilter === '' ||
-      (session.noise ?? 'unknown')
+      (noiseMap[session.noise] ?? 'Unknown')
         .toLowerCase()
         .includes(noiseFilter.toLowerCase());
 
     const matchesGroupSize =
       groupSizeFilter === '' ||
-      `${session.registered?.length ?? 0}/${session.capacity ?? '-'}`.includes(
-        groupSizeFilter
-      );
+      `${session.registered.length}/${session.capacity}`.includes(groupSizeFilter);
 
     const matchesDate =
       dateFilter === '' ||
-      session.day.toDate().toLocaleDateString().includes(dateFilter);
+      session.day.includes(dateFilter);
 
     const matchesTime =
       timeFilter === '' ||
-      session.startTime.toLowerCase().includes(timeFilter.toLowerCase());
+      session.startTime
+        .toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        .includes(timeFilter);
 
     return (
       matchesSubject &&
@@ -106,19 +129,16 @@ export default function Browse() {
     );
   });
 
+  // Sorting
   const sortedFilteredSessions = [...filteredSessions].sort((a, b) => {
     if (sortOption === 'date-asc') {
-      return a.date.toMillis() - b.date.toMillis();
+      return new Date(a.day).getTime() - new Date(b.day).getTime();
     } else if (sortOption === 'date-desc') {
-      return b.date.toMillis() - a.date.toMillis();
+      return new Date(b.day).getTime() - new Date(a.day).getTime();
     } else if (sortOption === 'members-asc') {
-      const aMembers = a.attendees?.length ?? 0;
-      const bMembers = b.attendees?.length ?? 0;
-      return aMembers - bMembers;
+      return a.registered.length - b.registered.length;
     } else if (sortOption === 'members-desc') {
-      const aMembers = a.attendees?.length ?? 0;
-      const bMembers = b.attendees?.length ?? 0;
-      return bMembers - aMembers;
+      return b.registered.length - a.registered.length;
     } else {
       return 0;
     }
@@ -263,44 +283,28 @@ export default function Browse() {
                 .slice(0, 6)
                 .map((session) => (
                   <SessionCard
-                    key={session.id}
+                    key={session.sessionID}
                     title={session.title}
                     location={session.location}
-                    date={session.date.toDate().toDateString()}
-                    time={session.time}
-                    members={`${session.attendees?.length ?? 0}/${
-                      session.maxSize ?? '-'
-                    }`}
-                    noise={session.noise ?? 'Unknown'}
-                    tags={session.tags ?? []}
+                    date={session.day}
+                    time={session.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    members={`${session.registered.length}/${session.capacity}`}
+                    noise={noiseMap[session.noise] ?? 'Unknown'}
+                    tags={session.tags?.map((tag) => tag.title) ?? []}
+                    onView={() => handleViewSession(session)}
                   />
                 ))
             )}
           </div>
-
-          {/* Pagination */}
-          {/* <div className='flex justify-center gap-2'>
-            <button className='w-9 h-10 bg-white rounded-md outline outline-1 outline-gray-300 flex items-center justify-center text-gray-700'>
-              &lt;
-            </button>
-            <button className='w-9 h-10 bg-blue-600 rounded-md outline outline-1 outline-blue-600 text-white'>
-              2
-            </button>
-            <button className='w-9 h-10 bg-white rounded-md outline outline-1 outline-gray-300 text-gray-700'>
-              3
-            </button>
-            <span className='w-6 h-10 flex items-center justify-center text-gray-500 text-base'>
-              ...
-            </span>
-            <button className='w-9 h-10 bg-white rounded-md outline outline-1 outline-gray-300 text-gray-700'>
-              8
-            </button>
-            <button className='w-9 h-10 bg-white rounded-md outline outline-1 outline-gray-300 flex items-center justify-center text-gray-700'>
-              &gt;
-            </button>
-          </div> */}
         </div>
       </div>
+      {selectedSession && (
+  <SessionPopup
+    session={selectedSession}
+    onClose={() => {}}
+    onJoin={handleJoinSession} // pass in the handleJoinSession here
+  />
+)}
     </ProtectedRoute>
   );
 }
