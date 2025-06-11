@@ -18,9 +18,7 @@ export default function MyUser() {
 
   return (
     <ProtectedRoute>
-      <div>
-        <Profile userID={user?.uuid || ''} />
-      </div>
+      <Profile userID={user?.uuid || ''} />
     </ProtectedRoute>
   );
 }

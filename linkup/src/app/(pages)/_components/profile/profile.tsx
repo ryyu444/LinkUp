@@ -13,6 +13,7 @@ import Link from 'next/link';
 
 function MainPage({ userID }: { userID: string }) {
   const [userData, setUserData] = useState<any>({
+    uuid: '',
     displayName: 'Anonymous',
     major: 'Unknown Major',
     year: 'nth Year',
@@ -50,6 +51,7 @@ function MainPage({ userID }: { userID: string }) {
         .filter((u) => u.uuid === userID)[0];
 
       setUserData({
+        uuid: userData.uuid,
         displayName: userData.displayName || 'Anonymous',
         major: userData.major || 'Unknown Major',
         year: userData.year || 'nth Year',
@@ -102,6 +104,7 @@ function Header({
   db: any;
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false); // Default to false
+  const { user } = useContext(AuthContext);
 
   // Set initial modal state based on firstTimeUser, only on first load
   useEffect(() => {
@@ -131,12 +134,16 @@ function Header({
       {/* Back to Dashboard button */}
       <Link href='/dashboard'>
         <div
-          className='absolute w-[250px] h-[54px] top-[50px] right-[222px] rounded-[10px]
-        border-2 border-[#F5F5F5] bg-white cursor-pointer hover:bg-gray-100 hover:shadow-md'
+          className={`absolute w-[250px] h-[54px] top-[50px] ${
+            user && user.uuid === userData.uuid
+              ? 'right-[222px]'
+              : 'right-[22px]'
+          } rounded-[10px]
+        border-2 border-[#F5F5F5] bg-white cursor-pointer hover:bg-gray-100 hover:shadow-md`}
         >
           <div className='absolute w-[230px] h-[32px] top-[10px] left-[10px]'>
             <img
-              src='BacktoDashboard.svg'
+              src='/BacktoDashboard.svg'
               alt='back to dashboard'
               className='w-full h-full object-cover'
             />
@@ -145,19 +152,21 @@ function Header({
       </Link>
 
       {/* Edit Profile button opens modal */}
-      <div
-        onClick={() => setIsModalOpen(true)}
-        className='absolute w-[170px] h-[54px] top-[50px] right-[28px] rounded-[10px]
+      {user && user.uuid === userData.uuid && (
+        <div
+          onClick={() => setIsModalOpen(true)}
+          className='absolute w-[170px] h-[54px] top-[50px] right-[28px] rounded-[10px]
         border-2 border-white cursor-pointer hover:bg-[#0a3463] hover:shadow-md'
-      >
-        <div className='absolute w-[149px] h-[32px] top-[10px] left-[10px]'>
-          <img
-            src='EditProfile.svg'
-            alt='edit profile'
-            className='w-full h-full object-cover'
-          />
+        >
+          <div className='absolute w-[149px] h-[32px] top-[10px] left-[10px]'>
+            <img
+              src='/EditProfile.svg'
+              alt='edit profile'
+              className='w-full h-full object-cover'
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* User's photo */}
       <div className='absolute top-[74px] left-[61px] w-[172px] h-[172px] rounded-full border-[5px] border-white overflow-hidden'>
@@ -217,7 +226,7 @@ function NameSection({ userData }: { userData: any }) {
       >
         <div className='w-[113px] h-[32px]'>
           <img
-            src='StudentVerify.svg'
+            src='/StudentVerify.svg'
             alt='Student'
             className='w-full h-full object-cover'
           />
@@ -290,7 +299,7 @@ function StudyInterest({
         {/* Study Preference */}
         <div className='flex items-center mb-5'>
           <img
-            src='sound.svg'
+            src='/sound.svg'
             alt='Study Preference'
             className='w-[29px] h-[29px] mr-2'
           />
@@ -302,7 +311,7 @@ function StudyInterest({
         {/* Group Size */}
         <div className='flex items-center mb-5'>
           <img
-            src='groupsize.svg'
+            src='/groupsize.svg'
             alt='Group Size'
             className='w-[29px] h-[29px] mr-2'
           />
