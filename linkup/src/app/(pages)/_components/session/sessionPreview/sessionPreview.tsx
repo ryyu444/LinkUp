@@ -1,6 +1,15 @@
 import Session from '@/app/_types/session/Session';
+import { Pencil } from 'lucide-react';
 
-export default function SessionPreview({ session }: { session: Session }) {
+export default function SessionPreview({
+  session,
+  isHost = false,
+  onEdit,
+}: {
+  session: Session;
+  isHost?: boolean;
+  onEdit?: (session: Session) => void;
+}) {
   const { title, startTime, endTime, location, registered } = session;
 
   const displayAttendees = registered.slice(0, 3);
@@ -15,8 +24,20 @@ export default function SessionPreview({ session }: { session: Session }) {
 
       {/* Center: Text */}
       <div className='flex-1 min-w-0'>
-        <p className='text-gray-900 text-sm font-bold leading-normal truncate'>
+        <p className='flex gap-2 items-center text-gray-900 text-sm font-bold leading-normal truncate'>
           {title}
+          {isHost && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // prevent outer click
+                onEdit?.(session);
+              }}
+              className='text-blue-500 hover:text-blue-700'
+              aria-label='Edit Session'
+            >
+              <Pencil className='w-4 h-4 inline-block' />
+            </button>
+          )}
         </p>
         <p className='text-gray-600 text-sm font-normal leading-normal truncate'>
           {startTime.toLocaleDateString()},{' '}

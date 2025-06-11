@@ -1,23 +1,22 @@
 'use client';
 
 import { useEffect, useState, useContext } from 'react';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
+import { Search, Plus, Folder } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '../_contexts/AuthContext';
-import { joinSession } from '@/(api)/_lib/firebase/joinSession';
-import { addSession } from '@/(api)/_lib/firebase/addSession';
+import { joinSession } from '@/(api)/_lib/firebase/sessions/joinSession';
+import { addSession } from '@/(api)/_lib/firebase/sessions/addSession';
 import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
 import InfoCard from '../_components/dashboard/infoCard/infoCard';
 import ActivityCard from '../_components/dashboard/activityCard/activityCard';
 import StatCard from '../_components/dashboard/statCard/statCard';
+import Session from '@/app/_types/session/Session';
 import SessionPopup from '../_components/session/sessionPopup/sessionPopup';
 import SessionForm from '../_components/session/sessionForm/sessionForm';
 import SessionPreview from '../_components/session/sessionPreview/sessionPreview';
 import ConfirmationModal from '../_components/confirmationModal/confirmationModal';
-
-import { Search, Plus, Folder } from 'lucide-react';
-import Session from '@/app/_types/session/Session';
 
 /*
   Set up auth to read in user specific information. (user object could contain name, stats, & registered sessions)
@@ -34,13 +33,13 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useContext(AuthContext);
   const router = useRouter();
-  const joinSessionHandler = () => {
+  const joinSessionHandler = async () => {
     if (!user || !selectedSession) return;
 
-    joinSession(selectedSession.sessionID, user.uuid, () => {
+    await joinSession(selectedSession.sessionID, user.uuid, () => {
       // close the session pop up & show confirmation
       setShowSessionPopup(false);
-      setAction("registered");
+      setAction('registered');
       setShowConfirmationModal(true);
       // remove session user just joined from list
       setSessions((prev) =>
@@ -53,11 +52,7 @@ export default function Dashboard() {
     const fetchSessions = async () => {
       try {
         const db = getFirebaseDB();
-        const q = query(
-          collection(db, 'sessions'),
-          orderBy('startTime'),
-          limit(3)
-        );
+        const q = query(collection(db, 'sessions'), orderBy('startTime'));
         const snapshot = await getDocs(q);
 
         const sessionList = snapshot.docs.map((doc) => {
@@ -190,7 +185,7 @@ export default function Dashboard() {
                 Loading upcoming sessions...
               </p>
             ) : sessions.length > 0 ? (
-              sessions.map((session) => {
+              sessions.slice(0, 3).map((session) => {
                 return (
                   <div
                     key={session.sessionID}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useContext } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { joinSession } from '@/(api)/_lib/firebase/joinSession';
+import { joinSession } from '@/(api)/_lib/firebase/sessions/joinSession';
 import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
 import { AuthContext } from '../_contexts/AuthContext';
 import SessionCard from '../_components/session/sessionCard/sessionCard';

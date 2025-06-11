@@ -8,9 +8,9 @@ export default function ProtectedRoute({ children }: any) {
   const { user, loading } = useContext(AuthContext);
   const path = usePathname();
 
-  console.log('ProtectedRoute');
-  console.log('Current Path:', path);
-  console.log('Current User:', user);
+  // console.log('ProtectedRoute');
+  // console.log('Current Path:', path);
+  // console.log('Current User:', user);
 
   // only check for redirects if the path changes.
   useEffect(() => {
@@ -24,7 +24,6 @@ export default function ProtectedRoute({ children }: any) {
     }
   }, [path, loading, user]);
 
-  // If loading, render a placeholder
   // can modify this to show a loading spinner or skeleton
   if (loading) {
     return <div>Loading...</div>;

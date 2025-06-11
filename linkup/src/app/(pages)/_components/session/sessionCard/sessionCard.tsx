@@ -1,12 +1,8 @@
-// Card for Sessions in Browse
 import { CiLocationOn, CiClock1 } from 'react-icons/ci';
 import { GoPeople } from 'react-icons/go';
 import { IoVolumeHighOutline } from 'react-icons/io5';
 
-/*
-  Make sure the View button opens up a SessionPopup component with the session details
-  Restyle the cards to match design in figma more closely
-*/
+// Card for Sessions in Browse
 export default function SessionCard({
   title,
   location,

@@ -6,11 +6,11 @@ import { Button } from '@/app/(pages)/_components/ui/button';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+
 /*
   TODO
    1. Need to render the login and signup buttons only if the user is not logged in
    2. If the user is logged in, render a profile icon that opens a dropdown menu with profile, my sessions, and logout
-
 */
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
@@ -38,7 +38,6 @@ export default function Navbar() {
   if (hide) return null;
 
   // hide the right button when user is logged in
-  //const hidebutton = pathname === '/dashboard' || pathname == '/browse' || pathname === '/session'
   return (
     // space between logo and buttons with padding and bottom border
     <header className='h-[64px] flex justify-between items-center p-6 border-b'>

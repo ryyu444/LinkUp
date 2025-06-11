@@ -450,15 +450,15 @@ function Rightside({
             }}
             className='w-full h-[50px] border border-[#6B819B] rounded-[5px] px-3 font-inter text-[20px] leading-[25px] outline-none pr-[85px]'
           />
-            <button
+          <button
             onClick={handleAddClick}
             className='absolute top-1/2 right-0 w-[50px] h-[50px] bg-[#002855] rounded-r-[5px] flex items-center justify-center text-white font-inter text-[32px] hover:bg-[#004080] focus:outline-none -translate-y-1/2'
             aria-label='Add subject'
-            >
+          >
             <span className='flex items-center justify-center w-full h-full'>
               +
             </span>
-            </button>
+          </button>
         </div>
       </div>
 
