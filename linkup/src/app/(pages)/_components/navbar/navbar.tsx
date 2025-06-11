@@ -1,10 +1,11 @@
 'use client';
-import Image from 'next/image';
-import Link from 'next/link';
+
 import { useContext, useRef, useState, useEffect } from 'react';
 import { AuthContext } from '@/app/(pages)/_contexts/AuthContext';
 import { Button } from '@/app/(pages)/_components/ui/button';
 import { usePathname, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 /*
   TODO
    1. Need to render the login and signup buttons only if the user is not logged in
