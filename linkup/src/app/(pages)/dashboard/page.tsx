@@ -31,10 +31,10 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { user } = useContext(AuthContext);
-  const joinSessionHandler = () => {
+  const joinSessionHandler = async () => {
     if (!user || !selectedSession) return;
 
-    joinSession(selectedSession.sessionID, user.uuid, () => {
+    await joinSession(selectedSession.sessionID, user.uuid, () => {
       // close the session pop up & show confirmation
       setShowSessionPopup(false);
       setShowConfirmationModal(true);
@@ -52,7 +52,6 @@ export default function Dashboard() {
         const q = query(
           collection(db, 'sessions'),
           orderBy('startTime'),
-          limit(3)
         );
         const snapshot = await getDocs(q);
 

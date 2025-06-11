@@ -1,7 +1,9 @@
 // Card for Sessions in Browse
-"use client";
+'use client';
 
-import SessionPopup from "../sessionPopup/sessionPopup";
+import { CiLocationOn, CiClock1 } from 'react-icons/ci';
+import { GoPeople } from 'react-icons/go';
+import { IoVolumeHighOutline } from 'react-icons/io5';
 
 /*
   Make sure the View button opens up a SessionPopup component with the session details
@@ -11,6 +13,7 @@ export default function SessionCard({
   title,
   location,
   time,
+  date,
   members,
   noise,
   tags,
@@ -27,11 +30,11 @@ export default function SessionCard({
 }) {
   return (
     <div
-      className="
+      className='
         bg-white 
         rounded-[20px] 
         shadow-md 
-        outline outline-1 outline-gray-200 
+        outline-1 outline-gray-200 
         p-6 
         w-full 
         h-auto 
@@ -39,25 +42,40 @@ export default function SessionCard({
         flex flex-col justify-between
         overflow-hidden
         break-words
-      "
+      '
     >
-      <div className="text-gray-900 text-base font-bold mb-2">{title}</div>
-      <div className="text-gray-600 text-sm mb-1">{location}</div>
-      <div className="text-gray-600 text-xs mb-1">{time}</div>
-      <div className="text-gray-600 text-xs mb-1">{members} Members</div>
-      <div className="text-gray-600 text-sm mb-1">{noise}</div>
-      <div className="flex flex-wrap gap-1 mb-4">
-        {tags && tags.map((tag) => (
-          <div
-            key={tag}
-            className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
-          >
-            {tag}
-          </div>
-        ))}
+      <div className='text-gray-900 text-base font-bold mb-2'>{title}</div>
+      <div className='flex items-center text-gray-600 text-sm gap-2'>
+        <CiLocationOn />
+        {location}
       </div>
-      <button 
-        className="bg-blue-600 text-white px-4 py-2 rounded-md"
+      <div className='flex items-center text-gray-600 text-sm gap-2'>
+        <CiClock1 />
+        {time} - {date}
+      </div>
+
+      <div className='flex items-center text-gray-600 text-sm gap-2'>
+        <GoPeople />
+        {members}
+      </div>
+
+      <div className='flex items-center text-gray-600 text-sm gap-2 mb-3'>
+        <IoVolumeHighOutline />
+        {noise}
+      </div>
+      <div className='flex flex-wrap gap-1 mb-4'>
+        {tags &&
+          tags.map((tag, index) => (
+            <div
+              key={`${tag} ${index}`}
+              className='bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded'
+            >
+              {tag}
+            </div>
+          ))}
+      </div>
+      <button
+        className='w-[20%] bg-blue-600 text-white px-4 py-2 rounded-md self-end cursor-pointer'
         onClick={onView}
       >
         View

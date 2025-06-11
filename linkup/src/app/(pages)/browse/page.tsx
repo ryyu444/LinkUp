@@ -1,3 +1,16 @@
+'use client';
+
+import { useEffect, useState, useContext } from 'react';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { joinSession } from '@/(api)/_lib/firebase/joinSession';
+import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
+import { AuthContext } from '../_contexts/AuthContext';
+import SessionCard from '../_components/session/sessionCard/sessionCard';
+import Session from '../../_types/session/Session';
+import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
+import SessionPopup from '../_components/session/sessionPopup/sessionPopup';
+import ConfirmationModal from '../_components/confirmationModal/confirmationModal';
+
 /*
     Corresponds to Browse figma page
     1. Get session data from props
@@ -6,27 +19,8 @@
     4. Create filter inputs
     5. Create available session displays that updates when filters are applied
 */
-
-// add state for filters
-// ignore pagination since its not that easy.
-
-
-// note: filtering is not working right now bc we need to update the sessions in the db to have the correct fields
-'use client';
-
-import { useEffect, useState, useContext } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { getFirebaseDB } from '@/(api)/_lib/firebase/firebaseClient';
-import { AuthContext } from '../_contexts/AuthContext';
-import SessionCard from '../_components/session/sessionCard/sessionCard';
-import Session from '../../_types/session/Session';
-import ProtectedRoute from '../_components/protectedRoute/protectedRoute';
-import SessionPopup from '../_components/session/sessionPopup/sessionPopup'
-import { joinSession } from '@/(api)/_lib/firebase/joinSession';
-
 export default function Browse() {
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(true);
   const [subjectFilter, setSubjectFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [noiseFilter, setNoiseFilter] = useState('');
@@ -34,19 +28,30 @@ export default function Browse() {
   const [dateFilter, setDateFilter] = useState('');
   const [timeFilter, setTimeFilter] = useState('');
   const [sortOption, setSortOption] = useState('date-asc');
-  const { user } = useContext(AuthContext);
+  const [showSessionPopup, setShowSessionPopup] = useState(false);
+  const [confirmationModal, setConfirmationModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useContext(AuthContext);
   const noiseMap = ['Silent', 'Low', 'Medium', 'Collaborative']; // 0 → 3
   const handleViewSession = (session: Session) => {
     setSelectedSession(session);
+    setShowSessionPopup(true);
   };
-  
+
   const handleJoinSession = async () => {
     if (!selectedSession || !user) return;
-  
+
     await joinSession(selectedSession.sessionID, user.uuid, () => {
       console.log('Join successful!');
-      //confirmationmodal(); // close the popup after successful join
+      setShowSessionPopup(false);
+      setConfirmationModal(true);
+      // Remove the session from the list after joining
+      setSessions((prev) =>
+        prev.filter(
+          (session) => session.sessionID !== selectedSession.sessionID
+        )
+      );
     });
   };
 
@@ -55,39 +60,40 @@ export default function Browse() {
 
     const fetchSessions = async () => {
       try {
-        setLoading(true);
         const db = getFirebaseDB();
-        const q = query(collection(db, 'sessions'), orderBy('day'));
+        const q = query(collection(db, 'sessions'), orderBy('startTime'));
         const snapshot = await getDocs(q);
-    
+
         const sessionList = snapshot.docs.map((doc) => {
           const data = doc.data();
-    
+
           return {
             sessionID: doc.id,
             ...data,
             startTime: data.startTime.toDate(), // Convert Timestamp → Date
-            endTime: data.endTime.toDate(),     // Convert Timestamp → Date
+            endTime: data.endTime.toDate(), // Convert Timestamp → Date
           };
         }) as Session[];
-    
-        // Filter out full sessions and ones created by me
+
+        const now = new Date();
         const filteredSessions = sessionList.filter((session) => {
-          const isFull = session.registered.length >= session.capacity;
-          const isCreatedByMe = session.host.uuid === user?.uuid;
-          return !isFull && !isCreatedByMe;
+          return (
+            session.startTime > now &&
+            session.host.uuid !== user?.uuid &&
+            !session.registered.includes(user?.uuid || '') &&
+            session.registered.length < session.capacity
+          );
         });
-    
+
         setSessions(filteredSessions);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching sessions:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchSessions();
-  }, [user]);
+  }, [user, isLoading]);
 
   // Filters
   const filteredSessions = sessions.filter((session) => {
@@ -107,11 +113,11 @@ export default function Browse() {
 
     const matchesGroupSize =
       groupSizeFilter === '' ||
-      `${session.registered.length}/${session.capacity}`.includes(groupSizeFilter);
+      `${session.registered.length}/${session.capacity}`.includes(
+        groupSizeFilter
+      );
 
-    const matchesDate =
-      dateFilter === '' ||
-      session.day.includes(dateFilter);
+    const matchesDate = dateFilter === '' || session.day.includes(dateFilter);
 
     const matchesTime =
       timeFilter === '' ||
@@ -187,7 +193,7 @@ export default function Browse() {
                 placeholder='All Subjects'
                 value={subjectFilter}
                 onChange={(e) => setSubjectFilter(e.target.value)}
-                className='w-full h-11 bg-white rounded-md outline outline-1 outline-gray-300 px-3'
+                className='w-full h-11 bg-white rounded-md  outline-1 outline-gray-300 px-3'
               />
             </div>
             <div>
@@ -199,7 +205,7 @@ export default function Browse() {
                 placeholder='All Locations'
                 value={locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
-                className='w-full h-11 bg-white rounded-md outline outline-1 outline-gray-300 px-3'
+                className='w-full h-11 bg-white rounded-md outline-1 outline-gray-300 px-3'
               />
             </div>
             <div>
@@ -211,7 +217,7 @@ export default function Browse() {
                 placeholder='Any Noise Level'
                 value={noiseFilter}
                 onChange={(e) => setNoiseFilter(e.target.value)}
-                className='w-full h-11 bg-white rounded-md outline outline-1 outline-gray-300 px-3'
+                className='w-full h-11 bg-white rounded-md outline-1 outline-gray-300 px-3'
               />
             </div>
             <div>
@@ -223,7 +229,7 @@ export default function Browse() {
                 placeholder='Any Size'
                 value={groupSizeFilter}
                 onChange={(e) => setGroupSizeFilter(e.target.value)}
-                className='w-full h-11 bg-white rounded-md outline outline-1 outline-gray-300 px-3'
+                className='w-full h-11 bg-white rounded-md outline-1 outline-gray-300 px-3'
               />
             </div>
             <div>
@@ -233,7 +239,7 @@ export default function Browse() {
                 placeholder='mm/dd/yyyy'
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className='w-full h-11 bg-white rounded-md outline outline-1 outline-gray-300 px-3'
+                className='w-full h-11 bg-white rounded-md outline-1 outline-gray-300 px-3'
               />
             </div>
             <div>
@@ -243,7 +249,7 @@ export default function Browse() {
                 placeholder='Any Time'
                 value={timeFilter}
                 onChange={(e) => setTimeFilter(e.target.value)}
-                className='w-full h-11 bg-white rounded-md outline outline-1 outline-gray-300 px-3'
+                className='w-full h-11 bg-white rounded-md  outline-1 outline-gray-300 px-3'
               />
             </div>
           </div>
@@ -276,35 +282,52 @@ export default function Browse() {
               gap-6 mb-12
             '
           >
-            {loading ? (
+            {isLoading ? (
               <p>Loading sessions...</p>
+            ) : sortedFilteredSessions.length === 0 ? (
+              <p className='text-gray-500 text-sm font-normal'>
+                No sessions found. Try adjusting your filters, checking back
+                later, or creating your own!
+              </p>
             ) : (
-              sortedFilteredSessions
-                .slice(0, 6)
-                .map((session) => (
-                  <SessionCard
-                    key={session.sessionID}
-                    title={session.title}
-                    location={session.location}
-                    date={session.day}
-                    time={session.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    members={`${session.registered.length}/${session.capacity}`}
-                    noise={noiseMap[session.noise] ?? 'Unknown'}
-                    tags={session.tags?.map((tag) => tag.title) ?? []}
-                    onView={() => handleViewSession(session)}
-                  />
-                ))
+              sortedFilteredSessions.map((session) => (
+                <SessionCard
+                  key={session.sessionID}
+                  title={session.title}
+                  location={session.location}
+                  date={session.day}
+                  time={session.startTime.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                  members={`${session.registered.length}/${session.capacity}`}
+                  noise={noiseMap[session.noise] ?? 'Unknown'}
+                  tags={session.tags?.map((tag) => tag.title) ?? []}
+                  onView={() => handleViewSession(session)}
+                />
+              ))
             )}
           </div>
         </div>
       </div>
-      {selectedSession && (
-  <SessionPopup
-    session={selectedSession}
-    onClose={() => {}}
-    onJoin={handleJoinSession} // pass in the handleJoinSession here
-  />
-)}
+      {showSessionPopup && selectedSession && (
+        <SessionPopup
+          session={selectedSession}
+          onClose={() => {
+            setShowSessionPopup(false);
+          }}
+          onJoin={handleJoinSession} // pass in the handleJoinSession here
+        />
+      )}
+
+      {confirmationModal && (
+        <ConfirmationModal
+          isOpen={confirmationModal}
+          handler={() => setConfirmationModal(false)}
+          sessionTitle={selectedSession?.title || ''}
+          action='registered'
+        />
+      )}
     </ProtectedRoute>
   );
 }

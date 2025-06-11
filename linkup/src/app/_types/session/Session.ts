@@ -9,7 +9,7 @@ interface Host {
 
 // can add more fields
 export default interface Session {
-  host: User;
+  host: Host;
   sessionID: string; // unique session ids
   title: string;
   description: string;
