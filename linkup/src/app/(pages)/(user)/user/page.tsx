@@ -1,3 +1,7 @@
+'use client';
+
+import { useContext } from 'react';
+import { AuthContext } from '../../_contexts/AuthContext';
 import Profile from '../../_components/profile/profile';
 import ProtectedRoute from '../../_components/protectedRoute/protectedRoute';
 
@@ -10,9 +14,11 @@ import ProtectedRoute from '../../_components/protectedRoute/protectedRoute';
     3. Back to dashboard: Redirect to /dashboard
 */
 export default function MyUser() {
+  const { user } = useContext(AuthContext);
+
   return (
     <ProtectedRoute>
-      <div>profile</div>
+      <Profile userID={user?.uuid || ''} />
     </ProtectedRoute>
   );
 }

@@ -1,3 +1,4 @@
+import Profile from '@/app/(pages)/_components/profile/profile';
 import ProtectedRoute from '@/app/(pages)/_components/protectedRoute/protectedRoute';
 /*
   This page will be for when a user clicks on some other person's profile.
@@ -9,7 +10,7 @@ export default async function User({ params }: any) {
 
   return (
     <ProtectedRoute>
-      <div>User Id: {id}</div>
+      <Profile userID={id} />
     </ProtectedRoute>
   );
 }

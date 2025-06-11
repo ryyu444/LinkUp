@@ -44,10 +44,10 @@ export async function handleGoogleSetup(): Promise<void> {
           provider: 'google',
           registeredSessions: [],
           subjects: [],
+          firstTimeUser: true,
         };
         await setDoc(userRef, userEntry);
       }
-      
     });
   } catch (error: any) {
     console.error('Google Sign-in Error:', error);
@@ -68,6 +68,16 @@ export async function handleEmailPasswordSetup(
   // extract email and password from form
   const email = form.get('email') as string;
   const password = form.get('password') as string;
+
+  // invalid password length
+  if (password.length < 6) {
+    throw new Error('Password should be at least 6 characters.');
+  }
+
+  // invalid email format
+  if (!email.includes('@') || !email.includes('.')) {
+    throw new Error('Invalid email format.');
+  }
 
   try {
     auth.setPersistence(browserSessionPersistence).then(async () => {
@@ -107,6 +117,7 @@ export async function handleEmailPasswordSetup(
           provider: 'email',
           registeredSessions: [],
           subjects: [],
+          firstTimeUser: true,
         };
         await setDoc(userRef, userEntry);
       }

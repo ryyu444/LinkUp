@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [showCreatePopup, setShowCreatePopup] = useState(false);
   const [showSessionPopup, setShowSessionPopup] = useState(false);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const joinSessionHandler = () => {
@@ -71,14 +72,26 @@ export default function Dashboard() {
           };
         }) as Session[];
 
-        setSessions(sessionList);
+        // filter out sessions that have already started, user is host, user is registered, or is full
+        const now = new Date();
+        const filteredSessions = sessionList.filter((session) => {
+          return (
+            session.startTime > now &&
+            session.host.uuid !== user?.uuid &&
+            !session.registered.includes(user?.uuid || '') &&
+            session.registered.length < session.capacity
+          );
+        });
+
+        setSessions(filteredSessions);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching sessions:', error);
       }
     };
 
     fetchSessions();
-  }, []);
+  }, [user, isLoading]);
 
   return (
     <ProtectedRoute>
@@ -138,7 +151,11 @@ export default function Dashboard() {
             </button>
           </div>
           <div className='space-y-4'>
-            {sessions.length > 0 ? (
+            {isLoading ? (
+              <p className='text-gray-500 text-sm font-normal'>
+                Loading upcoming sessions...
+              </p>
+            ) : sessions.length > 0 ? (
               sessions.map((session) => {
                 return (
                   <div
